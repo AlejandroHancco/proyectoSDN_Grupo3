@@ -106,17 +106,10 @@ class Usuario:
 def authenticateUser(username, password):
     req = client.CreateAuthPacket(code=pyrad.packet.AccessRequest)
     req["User-Name"] = username
-
-    # Comprobación de si la contraseña está cifrada en MD5
-    #if not is_md5(password):
-    #   password = text_to_md5(password)
-
     req["User-Password"] = password
     reply = client.SendPacket(req)
-    if reply.code == pyrad.packet.AccessAccept:
-        return True
-    else:
-        return False
+    return reply.code == pyrad.packet.AccessAccept
+
 
 
 # MySQL:
