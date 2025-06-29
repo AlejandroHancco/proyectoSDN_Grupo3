@@ -108,8 +108,8 @@ def authenticateUser(username, password):
     req["User-Name"] = username
     req["User-Password"] = password
     reply = client.SendPacket(req)
+    print(f"[DEBUG] RADIUS reply code: {reply.code}")
     return reply.code == pyrad.packet.AccessAccept
-
 
 
 # MySQL:
