@@ -1,0 +1,7 @@
+# dictionary
+ATTRIBUTE   User-Name        1       string
+ATTRIBUTE   User-Password    2       string
+ATTRIBUTE   Session-Id       3001    string
+ATTRIBUTE   User-Role        3002    string
+ATTRIBUTE   User-SwitchID    3003    string
+

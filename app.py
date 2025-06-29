@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pyrad.packet
 from datetime import datetime, timedelta
 import jwt
@@ -41,7 +42,7 @@ db_config = {
 RADIUS_SERVER = "127.0.0.1"
 RADIUS_PORT = 1812
 SECRET = b"testing123"
-DICT_PATH = "/etc/freeradius/3.0/dictionaryAuxiliar"
+DICT_PATH = "dictionary"
 
 client = Client(server=RADIUS_SERVER, secret=SECRET, dict=Dictionary(DICT_PATH))
 client.AuthPort = RADIUS_PORT
@@ -107,8 +108,8 @@ def authenticateUser(username, password):
     req["User-Name"] = username
 
     # Comprobación de si la contraseña está cifrada en MD5
-    if not is_md5(password):
-        password = text_to_md5(password)
+    #if not is_md5(password):
+    #   password = text_to_md5(password)
 
     req["User-Password"] = password
     reply = client.SendPacket(req)
@@ -369,5 +370,5 @@ def logout():
 
 # Main:
 if __name__ == "__main__":
-    app.run(host="192.168.201.200", port=30000, debug=True)
+    app.run(host="0.0.0.0", port=30000, debug=True)
 
