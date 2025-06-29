@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/md5.min.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form">
+            <h1>Inicie sesión</h1>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+            <form id="loginForm" method="POST">
+                <label for="username">Nombre de usuario</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit" class="submit-btn">Ingresar</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.getElementById("loginForm").onsubmit = function(event) {
+            event.preventDefault()
+            var passwordField = document.getElementById("password");
+            var password = passwordField.value;
+            var passwordMd5 = md5(password);
+            passwordField.value = passwordMd5;
+            this.submit();
+        };
+    </script>
+</body>
+</html>
+
