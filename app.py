@@ -315,52 +315,27 @@ def decode_token(token):
 # Inicio de sesión:
 @app.route("/", methods=["GET", "POST"])
 def login():
-    print (session)
+    print(session)
     ip_usuario = get_ip()
     ip_usuario = "10.0.0.1"
-
-    if "usuario" in session:
-        usuario = getUserDb(ip_usuario, db_config, False)
-        if usuario:
-            reglas = getRulesbyRole(usuario.rol)
-            if not reglas:
-                return "No hay reglas asignadas a este rol.", 400
-            regla_usuario = reglas[0]
-            token = generate_token(usuario.to_dict())
-            return redirect(f"http://{regla_usuario[3]}:{regla_usuario[4]}/?token={token}")
-    else:
-        usuario = getUserDb(ip_usuario, db_config, False)
-        if usuario:
-            session["usuario"] = usuario.to_dict()
-            reglas = getRulesbyRole(usuario.rol)
-            if not reglas:
-                return "No hay reglas asignadas a este rol.", 400
-            regla_usuario = reglas[0]
-
-            token = generate_token(usuario.to_dict())
-            return redirect(f"http://{regla_usuario[3]}:{regla_usuario[4]}/?token={token}")
 
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+
         if authenticateUser(username, password):
-
-            # Creación de la sesión
             createSession(username)
-
-            # Obtención del usuario
             usuario = getUserDb(username, db_config, True)
             session["usuario"] = usuario.to_dict()
-
-            # Creación de flows de autorización
             regla_usuario = createAuthFlows(usuario)
-
-            # Redirección
             token = generate_token(usuario.to_dict())
             return redirect(f"http://{regla_usuario[3]}:{regla_usuario[4]}/?token={token}")
         else:
             return "Credenciales inválidas", 401
+
+    # Para GET siempre renderiza login.html
     return render_template("login.html")
+
 
 # Cerrar sesión:
 @app.route("/logout", methods=["GET"])
