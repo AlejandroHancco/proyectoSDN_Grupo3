@@ -311,7 +311,7 @@ def decode_token(token):
 # Inicio de sesión:
 @app.route("/", methods=["GET", "POST"])
 def login():
-    
+    session.clear()
     ip_usuario = get_ip()
     ip_usuario = "10.0.0.1"
 
