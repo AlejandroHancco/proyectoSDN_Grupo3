@@ -1,7 +1,7 @@
 # dictionary
-ATTRIBUTE   User-Name        1       string
-ATTRIBUTE   User-Password    2       string
-ATTRIBUTE   Session-Id       3001    string
-ATTRIBUTE   User-Role        3002    string
-ATTRIBUTE   User-SwitchID    3003    string
+ATTRIBUTE User-Name 1 string
+ATTRIBUTE User-Password 2 string
+ATTRIBUTE NAS-IP-Address 4 ipaddr
+ATTRIBUTE NAS-Port 5 integer
+ATTRIBUTE Message-Authenticator 80 string
 
