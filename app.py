@@ -42,7 +42,7 @@ db_config = {
 RADIUS_SERVER = "127.0.0.1"
 RADIUS_PORT = 1812
 SECRET = b"testing123"
-DICT_PATH = "/usr/share/freeradius/dictionary"
+DICT_PATH = "dictionary"
 
 client = Client(server=RADIUS_SERVER, secret=SECRET, dict=Dictionary(DICT_PATH))
 client.AuthPort = RADIUS_PORT
