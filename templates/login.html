@@ -25,15 +25,17 @@
         </div>
     </div>
     <script>
-        document.getElementById("loginForm").onsubmit = function(event) {
-            event.preventDefault()
-            var passwordField = document.getElementById("password");
-            var password = passwordField.value;
-            var passwordMd5 = md5(password);
-            passwordField.value = passwordMd5;
-            this.submit();
-        };
-    </script>
+    document.getElementById("loginForm").onsubmit = function(event) {
+        // event.preventDefault()
+        // var passwordField = document.getElementById("password");
+        // var password = passwordField.value;
+        // var passwordMd5 = md5(password);
+        // passwordField.value = passwordMd5;
+        // this.submit();
+        // En vez de hacer nada, deja que el formulario se envíe normal con la contraseña en texto plano
+    };
+</script>
+
 </body>
 </html>
 
