@@ -319,6 +319,7 @@ def login():
     if "usuario" in session:
         usuario = getUserDb(ip_usuario, db_config, False)
         if usuario:
+            logout()
             regla_usuario = getRulesbyRole(usuario.rol)[0]
             token = generate_token(usuario.to_dict())
             return redirect(f"http://{regla_usuario[3]}:{regla_usuario[4]}/?token={token}")
