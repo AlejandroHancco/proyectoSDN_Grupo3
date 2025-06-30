@@ -106,10 +106,17 @@ class Usuario:
 def authenticateUser(username, password):
     req = client.CreateAuthPacket(code=pyrad.packet.AccessRequest)
     req["User-Name"] = username
+    req["NAS-IP-Address"] = "127.0.0.1"
+    req["NAS-Port"] = 0
     req["User-Password"] = password
+    print("Enviando paquete RADIUS:", req)
     reply = client.SendPacket(req)
-    print(f"[DEBUG] RADIUS reply code: {reply.code}")
-    return reply.code == pyrad.packet.AccessAccept
+    print("Respuesta RADIUS:", reply)
+    if reply.code == pyrad.packet.AccessAccept:
+        return True
+    else:
+        return False
+
 
 
 # MySQL:
