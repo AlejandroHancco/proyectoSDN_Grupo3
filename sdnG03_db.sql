@@ -1,4 +1,5 @@
-CREATE DATABASE sdnG03_db;
+DROP DATABASE IF EXISTS sdnG03_db;
+CREATE DATABASE IF NOT EXISTS sdnG03_db;
 USE sdnG03_db;
 
 -- Tabla de roles
@@ -9,14 +10,15 @@ CREATE TABLE role (
 
 -- Tabla de usuarios
 CREATE TABLE user (
-    username VARCHAR(50) PRIMARY KEY,
+    iduser INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     names VARCHAR(100) NOT NULL,
     lastnames VARCHAR(100) NOT NULL,
     code VARCHAR(20),
     rol INT,
     session VARCHAR(10),
-    time_stamp VARCHAR(50),  -- cambiado de VARCHAR(50) a DATETIME
+    time_stamp DATETIME,
     ip VARCHAR(15),
     sw_id VARCHAR(50),
     sw_port INT,
@@ -45,28 +47,63 @@ CREATE TABLE role_has_rule (
     FOREIGN KEY (rule_idrule) REFERENCES rule(idrule)
 );
 
+-- Tabla cursos con estado
+CREATE TABLE curso (
+    idcurso INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo'
+);
+
+-- Tabla inscripcion (relaciona usuarios y cursos)
+CREATE TABLE inscripcion (
+    user_iduser INT,
+    curso_idcurso INT,
+    fecha_inscripcion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_iduser, curso_idcurso),
+    FOREIGN KEY (user_iduser) REFERENCES user(iduser),
+    FOREIGN KEY (curso_idcurso) REFERENCES curso(idcurso)
+);
+
 -- Insertar roles
 INSERT INTO role (rolname) VALUES 
 ('admin'),
 ('user'),
-('invitado');
+('invitado'),
+('alumno');
 
--- Insertar usuarios con roles correspondientes (sin cambiar datos originales)
+-- Insertar usuarios con roles correspondientes
 INSERT INTO user (username, password, names, lastnames, code, rol, session, time_stamp, ip, sw_id, sw_port, mac, numrules) VALUES
 ('admin1', 'admin123', 'Admin', 'User', 'ADMIN001', 1, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
 ('user1', 'password1', 'Nombre1', 'Apellido1', 'C001', 2, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
-('user2', 'password2', 'Nombre2', 'Apellido2', 'C002', 2, 'active', NOW(), '10.0.0.2', '00:00:aa:51:aa:ba:72:41', 5, 'fa:16:3e:69:ff:aa', 0),
-('user3', 'password3', 'Nombre3', 'Apellido3', 'C003', 2, 'active', NOW(), '10.0.0.3', '00:00:1a:74:72:3f:ef:44', 3, 'fa:16:3e:a7:e1:fb', 0),
-('guest1', 'guestpass', 'Invitado', 'Ejemplo', 'G001', 3, 'active', NOW(), '10.0.0.4', '00:00:11:22:33:44:55:66', 2, 'de:ad:be:ef:00:01', 0);
+('alumno1', 'passalumno', 'Alumno', 'Ejemplo', 'A001', 4, 'active', NOW(), '10.0.0.5', '00:00:11:22:33:44:55:66', 2, 'de:ad:be:ef:00:01', 0);
 
 -- Insertar reglas
 INSERT INTO rule (name, description, svr_ip, svr_port, svr_mac, action) VALUES
-('Regla Admin', 'Acceso completo para admin', '192.168.201.200', 8080, 'f2:20:f9:45:4c:4e', 'allow'),
+('Regla Admin', 'Acceso completo para admin', '192.168.201.200', 8080, '00:00:f2:20:f9:45:4c:4e', 'allow'),
 ('Regla User', 'Acceso limitado para usuario', '192.168.201.201', 8081, 'fa:16:3e:0a:37:49', 'allow'),
-('Regla Invitado', 'Acceso restringido para invitado', '192.168.201.202', 8082, 'de:ad:be:ef:00:01', 'deny');
+('Regla Invitado', 'Acceso restringido para invitado', '192.168.201.202', 8082, 'de:ad:be:ef:00:01', 'deny'),
+('Regla Alumno', 'Acceso para alumnos a cursos', '192.168.201.203', 8083, 'de:ad:be:ef:00:02', 'allow');
 
 -- Asociar reglas con roles
 INSERT INTO role_has_rule (role_idrole, rule_idrule) VALUES
-(1, 1), -- admin tiene la Regla Admin
-(2, 2), -- user tiene la Regla User
-(3, 3); -- invitado tiene la Regla Invitado
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4);
+
+-- Insertar cursos
+INSERT INTO curso (nombre, estado) VALUES
+('Curso Python Básico', 'activo'),
+('Curso Redes', 'activo'),
+('Curso Seguridad', 'inactivo');
+
+-- Inscribir alumno1 en cursos activos
+INSERT INTO inscripcion (user_iduser, curso_idcurso) VALUES
+(
+    (SELECT iduser FROM user WHERE username = 'alumno1'),
+    (SELECT idcurso FROM curso WHERE nombre = 'Curso Python Básico')
+),
+(
+    (SELECT iduser FROM user WHERE username = 'alumno1'),
+    (SELECT idcurso FROM curso WHERE nombre = 'Curso Redes')
+);
