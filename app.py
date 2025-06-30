@@ -55,7 +55,7 @@ def getCursosAlumno(username):
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT c.nombre, c.estado
+            SELECT c.idcurso, c.nombre, c.estado
             FROM curso c
             JOIN inscripcion i ON c.idcurso = i.curso_idcurso
             JOIN user u ON i.user_iduser = u.iduser
@@ -69,6 +69,7 @@ def getCursosAlumno(username):
     except Exception as e:
         print(f"DB error cursos: {e}")
         return []
+
 
 @app.route("/", methods=["GET", "POST"])
 def login():
