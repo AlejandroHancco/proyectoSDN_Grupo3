@@ -11,7 +11,7 @@ from prettytable import PrettyTable
 #                   CONEXIONES:
 # -------------------------------------------------
 
-controller_ip = '10.20.12.162'
+controller_ip = '192.168.201.200'
 
 # Estructura nombre del flow:
 # Normales:
