@@ -361,7 +361,6 @@ def login():
 # Cerrar sesión:
 @app.route("/logout", methods=["GET"])
 def logout():
-
     username = request.args.get('username')
 
     if username:
@@ -371,7 +370,9 @@ def logout():
             updateUser(username, {"numrules": None})
 
     session.clear()
-    return redirect(url_for('login'))
+    resp = make_response(redirect(url_for('login')))
+    resp.set_cookie('session', '', expires=0) 
+    return resp
 
 # Main:
 if __name__ == "__main__":
