@@ -114,7 +114,10 @@ def authenticateUser(username, password):
     print("Enviando paquete RADIUS:", req)
     reply = client.SendPacket(req)
     print("Respuesta RADIUS:", reply)
-    return True
+    if reply.code == pyrad.packet.AccessAccept:
+        return True
+    else:
+        return False
 
 
 # MySQL:
