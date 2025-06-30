@@ -79,7 +79,7 @@ INSERT INTO user (username, password, names, lastnames, code, rol, session, time
 
 -- Insertar reglas
 INSERT INTO rule (name, description, svr_ip, svr_port, svr_mac, action) VALUES
-('Regla Admin', 'Acceso completo para admin', '192.168.201.200', 8080, '00:00:f2:20:f9:45:4c:4e', 'allow'),
+('Regla Admin', 'Acceso completo para admin', '192.168.201.200', 8080, 'f2:20:f9:45:4c:4e', 'allow'),
 ('Regla User', 'Acceso limitado para usuario', '192.168.201.201', 8081, 'fa:16:3e:0a:37:49', 'allow'),
 ('Regla Invitado', 'Acceso restringido para invitado', '192.168.201.202', 8082, 'de:ad:be:ef:00:01', 'deny'),
 ('Regla Alumno', 'Acceso para alumnos a cursos', '192.168.201.203', 8083, 'de:ad:be:ef:00:02', 'allow');
