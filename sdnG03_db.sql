@@ -16,7 +16,7 @@ CREATE TABLE user (
     code VARCHAR(20),
     rol INT,
     session VARCHAR(10),
-    time_stamp DATETIME,  -- cambiado de VARCHAR(50) a DATETIME
+    time_stamp VARCHAR(50),  -- cambiado de VARCHAR(50) a DATETIME
     ip VARCHAR(15),
     sw_id VARCHAR(50),
     sw_port INT,
