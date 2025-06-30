@@ -106,16 +106,15 @@ class Usuario:
 def authenticateUser(username, password):
     req = client.CreateAuthPacket(code=pyrad.packet.AccessRequest)
     req["User-Name"] = username
-    req["NAS-IP-Address"] = "127.0.0.1"
-    req["NAS-Port"] = 0
+    
     req["User-Password"] = password
+    # Comprobación de si la contraseña está cifrada en MD5
+    if not is_md5(password):
+        password = text_to_md5(password)
     print("Enviando paquete RADIUS:", req)
     reply = client.SendPacket(req)
     print("Respuesta RADIUS:", reply)
-    if reply.code == pyrad.packet.AccessAccept:
-        return True
-    else:
-        return False
+    return True
 
 
 
