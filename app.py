@@ -294,6 +294,7 @@ def generate_token(usuario):
         'exp': datetime.utcnow() + timedelta(minutes=1)
     }
     token = jwt.encode(payload, 'grupo4', algorithm='HS256')
+    token = token.decode('utf-8') if isinstance(token, bytes) else token
     return token
 
 def decode_token(token):
