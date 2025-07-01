@@ -5,6 +5,7 @@ from files import repository
 app = Flask(__name__)
 app.secret_key = "grupo3"
 
+# ---------- LOGIN ----------
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -24,9 +25,7 @@ def login():
             elif rol == "profesor":
                 return render_template("profesorPrincipal.html", usuario=usuario)
             elif rol == "administrador":
-                usuarios = repository.get_all_usuarios()
-                cursos = repository.get_all_cursos()
-                return render_template("adminPrincipal.html", usuario=usuario, usuarios=usuarios, cursos=cursos)
+                return redirect(url_for("panel_admin"))
             elif rol == "invitado":
                 return render_template("invitadoPrincipal.html", usuario=usuario)
             else:
@@ -40,35 +39,37 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
-# Editar curso
+# ---------- PANEL ADMIN ----------
+@app.route("/admin")
+def panel_admin():
+    if "usuario" not in session:
+        return redirect(url_for("login"))
+
+    usuario = session["usuario"]
+    rol = usuario.get("rolname", "").lower()
+
+    if rol != "administrador":
+        return "Acceso no autorizado", 403
+
+    usuarios = repository.get_all_usuarios()
+    cursos = repository.get_all_cursos()
+    return render_template("adminPrincipal.html", usuario=usuario, usuarios=usuarios, cursos=cursos)
+
+# ---------- CURSOS ----------
 @app.route("/editar_curso/<int:idcurso>", methods=["GET", "POST"])
 def editar_curso(idcurso):
     if request.method == "POST":
         nombre = request.form.get("nombre")
         estado = request.form.get("estado")
         repository.actualizar_curso(idcurso, nombre, estado)
-        return redirect(url_for("login"))  # Redirige al panel del admin
+        return redirect(url_for("panel_admin"))
     curso = repository.get_curso_por_id(idcurso)
     return render_template("editarCurso.html", curso=curso)
 
-# Editar usuario
-@app.route("/editar_usuario/<username>", methods=["GET", "POST"])
-def editar_usuario(username):
-    if request.method == "POST":
-        names = request.form.get("names")
-        lastnames = request.form.get("lastnames")
-        rol = int(request.form.get("rol"))
-        repository.actualizar_usuario(username, names, lastnames, rol)
-        return redirect(url_for("login"))  # O redirige a una vista del panel
-    usuario = repository.get_user_db(username)
-    return render_template("editarUsuario.html", usuario=usuario)
-
-
-# Eliminar curso
 @app.route("/eliminar_curso/<int:idcurso>")
 def eliminar_curso(idcurso):
     repository.eliminar_curso(idcurso)
-    return redirect(url_for("login"))
+    return redirect(url_for("panel_admin"))
 
 @app.route("/crear_curso", methods=["GET", "POST"])
 def crear_curso():
@@ -76,8 +77,26 @@ def crear_curso():
         nombre = request.form.get("nombre")
         estado = request.form.get("estado")
         repository.crear_curso(nombre, estado)
-        return redirect(url_for("login"))  # O redirige a admin directamente
-    return render_template("editarCurso.html", curso=None)  # curso=None para modo creación
+        return redirect(url_for("panel_admin"))
+    return render_template("editarCurso.html", curso=None)
+
+# ---------- USUARIOS ----------
+@app.route("/editar_usuario/<username>", methods=["GET", "POST"])
+def editar_usuario(username):
+    if request.method == "POST":
+        names = request.form.get("names")
+        lastnames = request.form.get("lastnames")
+        rol = int(request.form.get("rol"))
+        repository.actualizar_usuario(username, names, lastnames, rol)
+        return redirect(url_for("panel_admin"))
+    usuario = repository.get_user_db(username)
+    roles = repository.get_all_roles()
+    return render_template("editarUsuario.html", usuario=usuario, roles=roles)
+
+@app.route("/eliminar_usuario/<username>")
+def eliminar_usuario(username):
+    repository.eliminar_usuario(username)
+    return redirect(url_for("panel_admin"))
 
 @app.route("/crear_usuario", methods=["GET", "POST"])
 def crear_usuario():
@@ -86,11 +105,12 @@ def crear_usuario():
         password = request.form.get("password")
         names = request.form.get("names")
         lastnames = request.form.get("lastnames")
-        rol = request.form.get("rol")
+        rol = int(request.form.get("rol"))
         repository.crear_usuario(username, password, names, lastnames, rol)
-        return redirect(url_for("login"))
+        return redirect(url_for("panel_admin"))
     roles = repository.get_all_roles()
     return render_template("editarUsuario.html", usuario=None, roles=roles)
 
+# ---------- MAIN ----------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=30000, debug=True)
