@@ -136,7 +136,8 @@ def crear_curso():
     if request.method == "POST":
         nombre = request.form.get("nombre")
         estado = request.form.get("estado")
-        repository.crear_curso(nombre, estado)
+        codigo = request.form.get("codigo")  # ← Agregado
+        repository.crear_curso(nombre, estado, codigo)  # ← Modificado
         return redirect(url_for("panel_administrador"))
     return render_template("editarCurso.html", curso=None)
 
