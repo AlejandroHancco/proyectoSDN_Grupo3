@@ -70,7 +70,6 @@ def getCursosAlumno(username):
         print(f"DB error cursos: {e}")
         return []
 
-
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -81,14 +80,25 @@ def login():
             if not usuario:
                 return "Usuario no encontrado en BD", 404
             session["usuario"] = usuario
-            if usuario["rolname"].lower() == "alumno":
+
+            rol = usuario["rolname"].lower()
+
+            if rol == "alumno":
                 cursos = getCursosAlumno(username)
                 return render_template("cursos.html", usuario=usuario, cursos=cursos)
+            elif rol == "profesor":
+                return render_template("profesorPrincipal.html", usuario=usuario)
+            elif rol == "administrador":
+                return render_template("adminPrincipal.html", usuario=usuario)
+            elif rol == "invitado":
+                return render_template("invitadoPrincipal.html", usuario=usuario)
             else:
-                return f"Bienvenido {usuario['names']} {usuario['lastnames']}, rol: {usuario['rolname']}"
+                return f"Rol desconocido: {rol}", 403
         else:
             return "Credenciales inválidas", 401
     return render_template("login.html")
+
+
 
 @app.route("/logout")
 def logout():
