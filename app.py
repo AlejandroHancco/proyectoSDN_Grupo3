@@ -89,7 +89,10 @@ def login():
             elif rol == "profesor":
                 return render_template("profesorPrincipal.html", usuario=usuario)
             elif rol == "administrador":
-                return render_template("adminPrincipal.html", usuario=usuario)
+                usuarios = getAllUsuarios()
+                cursos = getAllCursos()
+                return render_template("adminPrincipal.html", usuario=usuario, usuarios=usuarios, cursos=cursos)
+
             elif rol == "invitado":
                 return render_template("invitadoPrincipal.html", usuario=usuario)
             else:
