@@ -31,7 +31,7 @@ def login():
             else:
                 return f"Rol desconocido: {rol}", 403
         else:
-            return "Credenciales inválidas", 401
+            return render_template("login.html", error="Credenciales inválidas")
     return render_template("login.html")
 
 @app.route("/logout")
