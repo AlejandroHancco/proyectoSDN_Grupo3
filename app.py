@@ -23,7 +23,7 @@ def login():
                 return render_template("cursos.html", usuario=usuario, cursos=cursos)
             elif rol == "profesor":
                 return render_template("profesorPrincipal.html", usuario=usuario)
-            elif rol == "admin":
+            elif rol == "administrador":
                 usuarios = repository.get_all_usuarios()
                 cursos = repository.get_all_cursos()
                 return render_template("adminPrincipal.html", usuario=usuario, usuarios=usuarios, cursos=cursos)
