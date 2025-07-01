@@ -79,6 +79,8 @@
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Estado</th>
+                        <th>Acciones</th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -87,6 +89,11 @@
                         <td>{{ c.idcurso }}</td>
                         <td>{{ c.nombre }}</td>
                         <td>{{ c.estado }}</td>
+                        <td class="text-center">
+                        <a href="/editar_curso/{{ c.idcurso }}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="/eliminar_curso/{{ c.idcurso }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar este curso?')">Eliminar</a>
+                        </td>
+
                     </tr>
                     {% endfor %}
                 </tbody>
