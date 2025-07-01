@@ -95,4 +95,38 @@ def get_all_cursos():
     except Exception as e:
         print(f"DB error cursos: {e}")
         return []
+def get_curso_por_id(idcurso):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM curso WHERE idcurso = %s", (idcurso,))
+        curso = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return curso
+    except Exception as e:
+        print(f"DB error get_curso_por_id: {e}")
+        return None
+
+def actualizar_curso(idcurso, nombre, estado):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE curso SET nombre = %s, estado = %s WHERE idcurso = %s", (nombre, estado, idcurso))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"DB error actualizar_curso: {e}")
+
+def eliminar_curso(idcurso):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM curso WHERE idcurso = %s", (idcurso,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"DB error eliminar_curso: {e}")
 
