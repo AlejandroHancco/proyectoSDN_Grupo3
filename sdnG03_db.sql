@@ -66,16 +66,18 @@ CREATE TABLE inscripcion (
 
 -- Insertar roles
 INSERT INTO role (rolname) VALUES 
-('admin'),
-('user'),
-('invitado'),
-('alumno');
+('Administrador'),
+('Alumno'),
+('Profesor'),
+('Invitado');
 
 -- Insertar usuarios con roles correspondientes
 INSERT INTO user (username, password, names, lastnames, code, rol, session, time_stamp, ip, sw_id, sw_port, mac, numrules) VALUES
 ('admin1', 'admin123', 'Admin', 'User', 'ADMIN001', 1, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
-('user1', 'password1', 'Nombre1', 'Apellido1', 'C001', 2, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
-('alumno1', 'passalumno', 'Alumno', 'Ejemplo', 'A001', 4, 'active', NOW(), '10.0.0.5', '00:00:11:22:33:44:55:66', 2, 'de:ad:be:ef:00:01', 0);
+('profesor1', 'profesor1', 'Profesor', 'Apellido1', 'P001', 3, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
+('invitado1', 'invitado1', 'Profesor', 'Apellido1', 'P001', 4, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
+
+('alumno1', 'passalumno', 'Alumno', 'Ejemplo', 'A001', 2, 'active', NOW(), '10.0.0.5', '00:00:11:22:33:44:55:66', 2, 'de:ad:be:ef:00:01', 0);
 
 -- Insertar reglas
 INSERT INTO rule (name, description, svr_ip, svr_port, svr_mac, action) VALUES
