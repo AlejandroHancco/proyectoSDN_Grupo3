@@ -236,14 +236,29 @@ def eliminar_usuario(username):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM user WHERE username = %s", (username,))
-        conn.commit()
+
+        # 1. Obtener ID del usuario
+        cursor.execute("SELECT iduser FROM user WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        if result:
+            iduser = result[0]
+
+            # 2. Eliminar inscripciones relacionadas
+            cursor.execute("DELETE FROM inscripcion WHERE user_iduser = %s", (iduser,))
+
+            # 3. Eliminar usuario
+            cursor.execute("DELETE FROM user WHERE iduser = %s", (iduser,))
+
+            conn.commit()
+
         cursor.close()
         conn.close()
+
         _eliminar_de_freeradius(username)
         _reiniciar_freeradius()
     except Exception as e:
         print(f"DB error eliminar usuario: {e}")
+
 
 # ---------- FREERADIUS ----------
 def _agregar_a_freeradius(username, password):
