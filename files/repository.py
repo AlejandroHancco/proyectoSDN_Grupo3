@@ -168,6 +168,27 @@ def get_inscritos_en_curso(idcurso):
         print(f"DB error inscritos: {e}")
         return []
 
+def eliminar_inscripcion_profesor(username, idcurso):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Obtener el ID del usuario
+        cursor.execute("SELECT iduser FROM user WHERE username = %s", (username,))
+        user_id = cursor.fetchone()[0]
+
+        # Eliminar la inscripción solo si fue hecha como profesor (rol_id = 3)
+        cursor.execute("""
+            DELETE FROM inscripcion
+            WHERE user_iduser = %s AND curso_idcurso = %s AND rol_id = 3
+        """, (user_id, idcurso))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"DB error eliminar inscripcion profesor: {e}")
+
 # ---------- USUARIOS ----------
 def get_all_usuarios(exclude_username=None):
     try:
