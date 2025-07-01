@@ -119,12 +119,19 @@ def eliminar_curso(idcurso):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
+
+        # 1. Eliminar inscripciones asociadas al curso
+        cursor.execute("DELETE FROM inscripcion WHERE curso_idcurso = %s", (idcurso,))
+
+        # 2. Eliminar curso
         cursor.execute("DELETE FROM curso WHERE idcurso = %s", (idcurso,))
+
         conn.commit()
         cursor.close()
         conn.close()
     except Exception as e:
         print(f"DB error eliminar curso: {e}")
+
 
 # ---------- INSCRIPCIONES ----------
 def inscribir_usuario_en_curso(username, idcurso, rol_id):
