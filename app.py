@@ -187,6 +187,14 @@ def asignar_curso(username):
                        cursos_asignados=cursos_asignados,
                        cursos_disponibles=cursos_disponibles)
 
+@app.route("/desasignar_curso/<username>/<int:idcurso>")
+@role_required("administrador")
+def desasignar_curso(username, idcurso):
+    try:
+        repository.eliminar_inscripcion_profesor(username, idcurso)
+    except Exception as e:
+        print(f"Error al desasignar curso: {e}")
+    return redirect(url_for("asignar_curso", username=username))
 
 
 
