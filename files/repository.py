@@ -67,15 +67,25 @@ def get_cursos_alumno(username):
         return []
 
 
-def get_all_usuarios():
+def get_all_usuarios(exclude_username=None):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT u.username, u.names, u.lastnames, r.rolname
-            FROM user u
-            JOIN role r ON u.rol = r.idrole
-        """)
+
+        if exclude_username:
+            cursor.execute("""
+                SELECT u.username, u.names, u.lastnames, r.rolname
+                FROM user u
+                JOIN role r ON u.rol = r.idrole
+                WHERE u.username != %s
+            """, (exclude_username,))
+        else:
+            cursor.execute("""
+                SELECT u.username, u.names, u.lastnames, r.rolname
+                FROM user u
+                JOIN role r ON u.rol = r.idrole
+            """)
+
         usuarios = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -83,6 +93,7 @@ def get_all_usuarios():
     except Exception as e:
         print(f"DB error usuarios: {e}")
         return []
+
 
 
 def get_all_cursos():
