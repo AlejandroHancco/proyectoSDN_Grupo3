@@ -127,7 +127,7 @@ def eliminar_curso(idcurso):
         print(f"DB error eliminar curso: {e}")
 
 # ---------- INSCRIPCIONES ----------
-def inscribir_usuario_en_curso(username, idcurso, rol_id=2):
+def inscribir_usuario_en_curso(username, idcurso, rol_id):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
