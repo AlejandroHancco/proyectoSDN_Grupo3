@@ -217,6 +217,24 @@ def crear_curso(nombre, estado):
     except Exception as e:
         print(f"DB error crear curso: {e}")
 
+def get_inscritos_en_curso(idcurso):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT u.username, u.names, u.lastnames
+            FROM inscripcion i
+            JOIN user u ON i.user_iduser = u.iduser
+            WHERE i.curso_idcurso = %s
+        """, (idcurso,))
+        inscritos = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return inscritos
+    except Exception as e:
+        print(f"DB error inscritos: {e}")
+        return []
+
 
 def crear_usuario(username, password, names, lastnames, rol):
     try:
