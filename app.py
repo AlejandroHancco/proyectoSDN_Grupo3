@@ -70,6 +70,27 @@ def eliminar_curso(idcurso):
     repository.eliminar_curso(idcurso)
     return redirect(url_for("login"))
 
+@app.route("/crear_curso", methods=["GET", "POST"])
+def crear_curso():
+    if request.method == "POST":
+        nombre = request.form.get("nombre")
+        estado = request.form.get("estado")
+        repository.crear_curso(nombre, estado)
+        return redirect(url_for("login"))  # O redirige a admin directamente
+    return render_template("editarCurso.html", curso=None)  # curso=None para modo creación
+
+@app.route("/crear_usuario", methods=["GET", "POST"])
+def crear_usuario():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        names = request.form.get("names")
+        lastnames = request.form.get("lastnames")
+        rol = request.form.get("rol")
+        repository.crear_usuario(username, password, names, lastnames, rol)
+        return redirect(url_for("login"))
+    roles = repository.get_all_roles()
+    return render_template("editarUsuario.html", usuario=None, roles=roles)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=30000, debug=True)
