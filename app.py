@@ -66,7 +66,7 @@ def panel_administrador():
 def panel_alumno():
     usuario = session["usuario"]
     username = usuario["username"]
-    cursos_inscritos = repository.get_cursos_alumno(username)
+    cursos_inscritos = repository.get_cursos_usuario_por_rol(username,2)
     all_cursos = repository.get_all_cursos()
     ids_inscritos = {c["idcurso"] for c in cursos_inscritos}
     cursos_disponibles = [c for c in all_cursos if c["estado"] == "activo" and c["idcurso"] not in ids_inscritos]
@@ -100,7 +100,7 @@ def panel_profesor():
     usuario = session["usuario"]
     username = usuario["username"]
     
-    cursos = repository.get_cursos_alumno(username)
+    cursos = repository.get_cursos_usuario_por_rol(username,3)
     
     cursos_con_inscritos = []
     for curso in cursos:
