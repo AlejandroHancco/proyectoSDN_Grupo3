@@ -51,7 +51,8 @@ def panel_admin():
     if rol != "administrador":
         return "Acceso no autorizado", 403
 
-    usuarios = repository.get_all_usuarios()
+    usuarios = repository.get_all_usuarios(session["usuario"]["username"])
+
     cursos = repository.get_all_cursos()
     return render_template("adminPrincipal.html", usuario=usuario, usuarios=usuarios, cursos=cursos)
 
