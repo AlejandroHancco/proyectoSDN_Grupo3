@@ -98,7 +98,10 @@ def panel_invitado():
 @role_required("profesor")
 def panel_profesor():
     usuario = session["usuario"]
-    cursos = repository.get_all_cursos()
+    username = usuario["username"]
+    
+    cursos = repository.get_cursos_alumno(username)
+    
     cursos_con_inscritos = []
     for curso in cursos:
         inscritos = repository.get_inscritos_en_curso(curso["idcurso"])
@@ -106,6 +109,7 @@ def panel_profesor():
             "curso": curso,
             "inscritos": inscritos
         })
+    
     return render_template("profesorPrincipal.html", usuario=usuario, cursos_info=cursos_con_inscritos)
 
 # ---------- CURSOS ----------
