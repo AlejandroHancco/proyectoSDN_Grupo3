@@ -59,6 +59,9 @@
                         <td class="text-center">
                             <a href="/editar_usuario/{{ u.username }}" class="btn btn-sm btn-warning">Editar</a>
                             <a href="/eliminar_usuario/{{ u.username }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas eliminar este usuario?')">Eliminar</a>
+                            {% if u.rolname == "Profesor" %}
+                            <a href="/asignar_curso/{{ u.username }}" class="btn btn-sm btn-info">Asignar Curso</a>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
