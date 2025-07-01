@@ -154,4 +154,41 @@ def eliminar_curso(idcurso):
         conn.close()
     except Exception as e:
         print(f"DB error eliminar_curso: {e}")
+def crear_curso(nombre, estado):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO curso (nombre, estado) VALUES (%s, %s)", (nombre, estado))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"Error al crear curso: {e}")
+
+def crear_usuario(username, password, names, lastnames, rol):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO user (username, password, names, lastnames, rol)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (username, password, names, lastnames, rol))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"Error al crear usuario: {e}")
+
+def get_all_roles():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT idrole, rolname FROM role")
+        roles = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return roles
+    except Exception as e:
+        print(f"DB error roles: {e}")
+        return []
 
