@@ -160,6 +160,32 @@ def eliminar_usuario(username):
     repository.eliminar_usuario(username)
     return redirect(url_for("panel_administrador"))
 
+@app.route("/asignar_curso/<username>", methods=["GET", "POST"])
+@role_required("administrador")
+def asignar_curso(username):
+    profesor = repository.get_user_db(username)
+    if not profesor or profesor["rolname"].lower() != "profesor":
+        return "No es un profesor válido", 400
+
+    if request.method == "POST":
+        idcurso = request.form.get("idcurso")
+        try:
+            repository.inscribir_usuario_en_curso(username, idcurso, idrol=3)  # Rol 3 = Profesor
+        except Exception as e:
+            print(f"Error asignando curso a profesor: {e}")
+        return redirect(url_for("asignar_curso", username=username))
+
+    cursos_asignados = repository.get_cursos_usuario_por_rol(username, 3)
+    all_cursos = repository.get_all_cursos()
+    ids_asignados = {c["idcurso"] for c in cursos_asignados}
+    cursos_disponibles = [c for c in all_cursos if c["estado"] == "activo" and c["idcurso"] not in ids_asignados]
+
+    return render_template("asignarCurso.html",
+                           profesor=profesor,
+                           cursos_asignados=cursos_asignados,
+                           cursos_disponibles=cursos_disponibles)
+
+
 @app.route("/crear_usuario", methods=["GET", "POST"])
 @role_required("administrador")
 def crear_usuario():
