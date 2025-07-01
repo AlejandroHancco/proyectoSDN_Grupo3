@@ -119,7 +119,8 @@ def editar_curso(idcurso):
     if request.method == "POST":
         nombre = request.form.get("nombre")
         estado = request.form.get("estado")
-        repository.actualizar_curso(idcurso, nombre, estado)
+        codigo = request.form.get("codigo")  # ← Agregado
+        repository.actualizar_curso(idcurso, nombre, estado, codigo)  # ← Modificado
         return redirect(url_for("panel_administrador"))
     curso = repository.get_curso_por_id(idcurso)
     return render_template("editarCurso.html", curso=curso)
