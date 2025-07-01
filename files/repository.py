@@ -12,7 +12,7 @@ db_config = {
 
 FREERADIUS_USERS_FILE = "/etc/freeradius/3.0/users"
 
-
+# ---------- AUTENTICACIÓN ----------
 def authenticate_user(username, password):
     from pyrad.client import Client
     from pyrad.dictionary import Dictionary
@@ -24,7 +24,6 @@ def authenticate_user(username, password):
     req["User-Password"] = req.PwCrypt(password)
     reply = client.SendPacket(req)
     return reply.code == AccessAccept
-
 
 def get_user_db(username):
     try:
@@ -45,17 +44,17 @@ def get_user_db(username):
         print(f"DB error: {e}")
         return None
 
-
+# ---------- CURSOS ----------
 def get_cursos_alumno(username):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT c.idcurso, c.nombre, c.estado
+            SELECT c.idcurso, c.nombre, c.codigo, c.estado
             FROM curso c
             JOIN inscripcion i ON c.idcurso = i.curso_idcurso
             JOIN user u ON i.user_iduser = u.iduser
-            WHERE u.username = %s AND c.estado = 'activo'
+            WHERE u.username = %s AND i.rol_id = 2 AND c.estado = 'activo'
         """
         cursor.execute(query, (username,))
         cursos = cursor.fetchall()
@@ -63,44 +62,34 @@ def get_cursos_alumno(username):
         conn.close()
         return cursos
     except Exception as e:
-        print(f"DB error cursos: {e}")
+        print(f"DB error cursos alumno: {e}")
         return []
 
-
-def get_all_usuarios(exclude_username=None):
+def get_cursos_profesor(username):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-
-        if exclude_username:
-            cursor.execute("""
-                SELECT u.username, u.names, u.lastnames, r.rolname
-                FROM user u
-                JOIN role r ON u.rol = r.idrole
-                WHERE u.username != %s
-            """, (exclude_username,))
-        else:
-            cursor.execute("""
-                SELECT u.username, u.names, u.lastnames, r.rolname
-                FROM user u
-                JOIN role r ON u.rol = r.idrole
-            """)
-
-        usuarios = cursor.fetchall()
+        query = """
+            SELECT c.idcurso, c.nombre, c.codigo, c.estado
+            FROM curso c
+            JOIN inscripcion i ON c.idcurso = i.curso_idcurso
+            JOIN user u ON i.user_iduser = u.iduser
+            WHERE u.username = %s AND i.rol_id = 3
+        """
+        cursor.execute(query, (username,))
+        cursos = cursor.fetchall()
         cursor.close()
         conn.close()
-        return usuarios
+        return cursos
     except Exception as e:
-        print(f"DB error usuarios: {e}")
+        print(f"DB error cursos profesor: {e}")
         return []
-
-
 
 def get_all_cursos():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT idcurso, nombre, estado FROM curso")
+        cursor.execute("SELECT idcurso, nombre, codigo, estado FROM curso")
         cursos = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -108,62 +97,6 @@ def get_all_cursos():
     except Exception as e:
         print(f"DB error cursos: {e}")
         return []
-def inscribir_usuario_en_curso(username, idcurso):
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor()
-    cursor.execute("SELECT iduser FROM user WHERE username = %s", (username,))
-    user_id = cursor.fetchone()[0]
-    cursor.execute("INSERT INTO inscripcion (user_iduser, curso_idcurso) VALUES (%s, %s)", (user_id, idcurso))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-
-def get_all_roles():
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT idrole, rolname FROM role")
-        roles = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return roles
-    except Exception as e:
-        print(f"DB error roles: {e}")
-        return []
-
-
-def actualizar_usuario(username, names, lastnames, rol, password=None):
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE user SET names=%s, lastnames=%s, rol=%s WHERE username=%s
-        """, (names, lastnames, rol, username))
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        if password:
-            _actualizar_freeradius_password(username, password)
-            _reiniciar_freeradius()
-    except Exception as e:
-        print(f"DB error actualizar usuario: {e}")
-
-
-def actualizar_curso(idcurso, nombre, estado):
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE curso SET nombre=%s, estado=%s WHERE idcurso=%s
-        """, (nombre, estado, idcurso))
-        conn.commit()
-        cursor.close()
-        conn.close()
-    except Exception as e:
-        print(f"DB error actualizar curso: {e}")
-
 
 def get_curso_por_id(idcurso):
     try:
@@ -178,6 +111,28 @@ def get_curso_por_id(idcurso):
         print(f"DB error get curso: {e}")
         return None
 
+def crear_curso(nombre, estado, codigo):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO curso (nombre, estado, codigo) VALUES (%s, %s, %s)", (nombre, estado, codigo))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"DB error crear curso: {e}")
+
+def actualizar_curso(idcurso, nombre, estado, codigo):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE curso SET nombre = %s, estado = %s, codigo = %s WHERE idcurso = %s",
+                       (nombre, estado, codigo, idcurso))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"DB error actualizar curso: {e}")
 
 def eliminar_curso(idcurso):
     try:
@@ -190,32 +145,22 @@ def eliminar_curso(idcurso):
     except Exception as e:
         print(f"DB error eliminar curso: {e}")
 
-
-def eliminar_usuario(username):
+# ---------- INSCRIPCIONES ----------
+def inscribir_usuario_en_curso(username, idcurso, rol_id=2):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM user WHERE username = %s", (username,))
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        _eliminar_de_freeradius(username)
-        _reiniciar_freeradius()
-    except Exception as e:
-        print(f"DB error eliminar usuario: {e}")
-
-
-def crear_curso(nombre, estado):
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO curso (nombre, estado) VALUES (%s, %s)", (nombre, estado))
+        cursor.execute("SELECT iduser FROM user WHERE username = %s", (username,))
+        user_id = cursor.fetchone()[0]
+        cursor.execute("""
+            INSERT INTO inscripcion (user_iduser, curso_idcurso, rol_id)
+            VALUES (%s, %s, %s)
+        """, (user_id, idcurso, rol_id))
         conn.commit()
         cursor.close()
         conn.close()
     except Exception as e:
-        print(f"DB error crear curso: {e}")
+        print(f"DB error inscribir usuario: {e}")
 
 def get_inscritos_en_curso(idcurso):
     try:
@@ -225,7 +170,7 @@ def get_inscritos_en_curso(idcurso):
             SELECT u.username, u.names, u.lastnames
             FROM inscripcion i
             JOIN user u ON i.user_iduser = u.iduser
-            WHERE i.curso_idcurso = %s
+            WHERE i.curso_idcurso = %s AND i.rol_id = 2
         """, (idcurso,))
         inscritos = cursor.fetchall()
         cursor.close()
@@ -235,6 +180,44 @@ def get_inscritos_en_curso(idcurso):
         print(f"DB error inscritos: {e}")
         return []
 
+# ---------- USUARIOS ----------
+def get_all_usuarios(exclude_username=None):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        if exclude_username:
+            cursor.execute("""
+                SELECT u.username, u.names, u.lastnames, r.rolname
+                FROM user u
+                JOIN role r ON u.rol = r.idrole
+                WHERE u.username != %s
+            """, (exclude_username,))
+        else:
+            cursor.execute("""
+                SELECT u.username, u.names, u.lastnames, r.rolname
+                FROM user u
+                JOIN role r ON u.rol = r.idrole
+            """)
+        usuarios = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return usuarios
+    except Exception as e:
+        print(f"DB error usuarios: {e}")
+        return []
+
+def get_all_roles():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT idrole, rolname FROM role")
+        roles = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return roles
+    except Exception as e:
+        print(f"DB error roles: {e}")
+        return []
 
 def crear_usuario(username, password, names, lastnames, rol):
     try:
@@ -247,22 +230,47 @@ def crear_usuario(username, password, names, lastnames, rol):
         conn.commit()
         cursor.close()
         conn.close()
-
         _agregar_a_freeradius(username, password)
         _reiniciar_freeradius()
     except Exception as e:
         print(f"DB error crear usuario: {e}")
 
+def actualizar_usuario(username, names, lastnames, rol, password=None):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE user SET names=%s, lastnames=%s, rol=%s WHERE username=%s
+        """, (names, lastnames, rol, username))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        if password:
+            _actualizar_freeradius_password(username, password)
+            _reiniciar_freeradius()
+    except Exception as e:
+        print(f"DB error actualizar usuario: {e}")
 
-# Funciones internas para archivo FreeRADIUS
+def eliminar_usuario(username):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM user WHERE username = %s", (username,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        _eliminar_de_freeradius(username)
+        _reiniciar_freeradius()
+    except Exception as e:
+        print(f"DB error eliminar usuario: {e}")
 
+# ---------- FREERADIUS ----------
 def _agregar_a_freeradius(username, password):
     try:
         with open(FREERADIUS_USERS_FILE, "a") as f:
             f.write(f"\n{username}\tCleartext-Password := \"{password}\"\n\tReply-Message := \"Bienvenido {username}\"\n")
     except Exception as e:
         print(f"Error escribiendo en FreeRADIUS: {e}")
-
 
 def _actualizar_freeradius_password(username, password):
     try:
@@ -287,7 +295,6 @@ def _actualizar_freeradius_password(username, password):
     except Exception as e:
         print(f"Error actualizando FreeRADIUS: {e}")
 
-
 def _eliminar_de_freeradius(username):
     try:
         with open(FREERADIUS_USERS_FILE, "r") as f:
@@ -308,7 +315,6 @@ def _eliminar_de_freeradius(username):
             f.writelines(new_lines)
     except Exception as e:
         print(f"Error eliminando de FreeRADIUS: {e}")
-
 
 def _reiniciar_freeradius():
     try:
