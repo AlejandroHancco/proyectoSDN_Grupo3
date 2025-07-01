@@ -45,7 +45,19 @@ def get_user_db(username):
     except Exception as e:
         print(f"DB error: {e}")
         return None
-
+def actualizar_usuario(username, names, lastnames, rol):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE user SET names = %s, lastnames = %s, rol = %s WHERE username = %s",
+            (names, lastnames, rol, username)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"DB error actualizar_usuario: {e}")
 def get_cursos_alumno(username):
     try:
         conn = mysql.connector.connect(**db_config)
@@ -118,6 +130,19 @@ def actualizar_curso(idcurso, nombre, estado):
         conn.close()
     except Exception as e:
         print(f"DB error actualizar_curso: {e}")
+
+
+def actualizar_curso(idcurso, nombre, estado):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE curso SET nombre = %s, estado = %s WHERE idcurso = %s", (nombre, estado, idcurso))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"DB error actualizar_curso: {e}")
+
 
 def eliminar_curso(idcurso):
     try:
