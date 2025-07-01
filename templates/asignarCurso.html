@@ -33,7 +33,7 @@
         <div>
             <h4>Asignar a un nuevo curso</h4>
             {% if cursos_disponibles %}
-            <form method="POST">
+            <form method="POST" action="{{ url_for('asignar_curso', username=profesor.username) }}">
                 <div class="mb-3">
                     <label for="idcurso" class="form-label">Seleccionar curso</label>
                     <select name="idcurso" id="idcurso" class="form-select" required>
