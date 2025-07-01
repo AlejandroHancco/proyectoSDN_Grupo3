@@ -43,14 +43,11 @@ def logout():
 def panel_admin():
     if "usuario" not in session:
         return redirect(url_for("login"))
-
-    usuario = session["usuario"]
-    rol = usuario.get("rolname", "").lower()
-
-    if rol != "administrador":
+    if session["usuario"]["rolname"].lower() != "administrador":
         return "Acceso no autorizado", 403
 
-    usuarios = repository.get_all_usuarios(session["usuario"]["username"])
+    usuario = session["usuario"]
+    usuarios = repository.get_all_usuarios(usuario["username"])
     cursos = repository.get_all_cursos()
     return render_template("adminPrincipal.html", usuario=usuario, usuarios=usuarios, cursos=cursos)
 
@@ -59,6 +56,8 @@ def panel_admin():
 def panel_alumno():
     if "usuario" not in session:
         return redirect(url_for("login"))
+    if session["usuario"]["rolname"].lower() != "alumno":
+        return "Acceso no autorizado", 403
 
     usuario = session["usuario"]
     username = usuario["username"]
@@ -76,6 +75,8 @@ def panel_alumno():
 def inscribirse(idcurso):
     if "usuario" not in session:
         return redirect(url_for("login"))
+    if session["usuario"]["rolname"].lower() != "alumno":
+        return "Acceso no autorizado", 403
 
     username = session["usuario"]["username"]
     try:
@@ -89,6 +90,8 @@ def inscribirse(idcurso):
 def panel_invitado():
     if "usuario" not in session:
         return redirect(url_for("login"))
+    if session["usuario"]["rolname"].lower() != "invitado":
+        return "Acceso no autorizado", 403
 
     usuario = session["usuario"]
     all_cursos = repository.get_all_cursos()
@@ -101,6 +104,8 @@ def panel_invitado():
 def panel_profesor():
     if "usuario" not in session:
         return redirect(url_for("login"))
+    if session["usuario"]["rolname"].lower() != "profesor":
+        return "Acceso no autorizado", 403
 
     usuario = session["usuario"]
     all_cursos = repository.get_all_cursos()
