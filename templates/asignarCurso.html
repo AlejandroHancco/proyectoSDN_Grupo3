@@ -13,21 +13,24 @@
         <h2 class="mb-4 text-center">Asignar Curso a {{ profesor.names }} {{ profesor.lastnames }}</h2>
 
         <!-- Cursos que el profesor ya dicta -->
-        <div class="mb-5">
-            <h4>Cursos que ya dicta</h4>
-            {% if cursos_asignados %}
-            <ul class="list-group">
-                {% for curso in cursos_asignados %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ curso.nombre }}
-                    <span class="badge bg-success">Activo</span>
-                </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p class="text-muted">Este profesor no tiene cursos asignados aún.</p>
-            {% endif %}
-        </div>
+<div class="mb-5">
+    <h4>Cursos que ya dicta</h4>
+    {% if cursos_asignados %}
+    <ul class="list-group">
+        {% for curso in cursos_asignados %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ curso.nombre }}
+            <form method="GET" action="{{ url_for('desasignar_curso', username=profesor.username, idcurso=curso.idcurso) }}" onsubmit="return confirm('¿Estás seguro de desasignar este curso?');">
+                <button type="submit" class="btn btn-sm btn-danger">Dejar de dictar</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">Este profesor no tiene cursos asignados aún.</p>
+    {% endif %}
+</div>
+
 
         <!-- Asignar nuevo curso -->
         <div>
