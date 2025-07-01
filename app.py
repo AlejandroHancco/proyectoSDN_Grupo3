@@ -60,7 +60,7 @@ def editar_usuario(username):
         rol = int(request.form.get("rol"))
         repository.actualizar_usuario(username, names, lastnames, rol)
         return redirect(url_for("login"))  # O redirige a una vista del panel
-    usuario = repository.get_usuario_por_username(username)
+    usuario = repository.get_user_db(username)
     return render_template("editarUsuario.html", usuario=usuario)
 
 
