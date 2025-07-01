@@ -1,1 +1,9 @@
-a
+<!-- templates/includes/navbar.html -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid justify-content-between">
+        <span class="navbar-text text-white">
+            Bienvenido, {{ usuario.names }} {{ usuario.lastnames }} ({{ usuario.rolname }})
+        </span>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-light">Cerrar Sesión</a>
+    </div>
+</nav>
