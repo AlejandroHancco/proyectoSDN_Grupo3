@@ -1,5 +1,6 @@
 import mysql.connector
 import os
+import subprocess
 
 # Configuración MySQL
 db_config = {
@@ -10,6 +11,7 @@ db_config = {
 }
 
 FREERADIUS_USERS_FILE = "/etc/freeradius/3.0/users"
+
 
 def authenticate_user(username, password):
     from pyrad.client import Client
@@ -22,6 +24,7 @@ def authenticate_user(username, password):
     req["User-Password"] = req.PwCrypt(password)
     reply = client.SendPacket(req)
     return reply.code == AccessAccept
+
 
 def get_user_db(username):
     try:
@@ -41,6 +44,7 @@ def get_user_db(username):
     except Exception as e:
         print(f"DB error: {e}")
         return None
+
 
 def get_cursos_alumno(username):
     try:
@@ -62,6 +66,7 @@ def get_cursos_alumno(username):
         print(f"DB error cursos: {e}")
         return []
 
+
 def get_all_usuarios():
     try:
         conn = mysql.connector.connect(**db_config)
@@ -79,6 +84,7 @@ def get_all_usuarios():
         print(f"DB error usuarios: {e}")
         return []
 
+
 def get_all_cursos():
     try:
         conn = mysql.connector.connect(**db_config)
@@ -91,6 +97,7 @@ def get_all_cursos():
     except Exception as e:
         print(f"DB error cursos: {e}")
         return []
+
 
 def get_all_roles():
     try:
@@ -105,6 +112,7 @@ def get_all_roles():
         print(f"DB error roles: {e}")
         return []
 
+
 def actualizar_usuario(username, names, lastnames, rol, password=None):
     try:
         conn = mysql.connector.connect(**db_config)
@@ -118,21 +126,10 @@ def actualizar_usuario(username, names, lastnames, rol, password=None):
 
         if password:
             _actualizar_freeradius_password(username, password)
+            _reiniciar_freeradius()
     except Exception as e:
         print(f"DB error actualizar usuario: {e}")
 
-def eliminar_usuario(username):
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM user WHERE username = %s", (username,))
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        _eliminar_de_freeradius(username)
-    except Exception as e:
-        print(f"DB error eliminar usuario: {e}")
 
 def actualizar_curso(idcurso, nombre, estado):
     try:
@@ -147,6 +144,7 @@ def actualizar_curso(idcurso, nombre, estado):
     except Exception as e:
         print(f"DB error actualizar curso: {e}")
 
+
 def get_curso_por_id(idcurso):
     try:
         conn = mysql.connector.connect(**db_config)
@@ -160,6 +158,7 @@ def get_curso_por_id(idcurso):
         print(f"DB error get curso: {e}")
         return None
 
+
 def eliminar_curso(idcurso):
     try:
         conn = mysql.connector.connect(**db_config)
@@ -171,6 +170,22 @@ def eliminar_curso(idcurso):
     except Exception as e:
         print(f"DB error eliminar curso: {e}")
 
+
+def eliminar_usuario(username):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM user WHERE username = %s", (username,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        _eliminar_de_freeradius(username)
+        _reiniciar_freeradius()
+    except Exception as e:
+        print(f"DB error eliminar usuario: {e}")
+
+
 def crear_curso(nombre, estado):
     try:
         conn = mysql.connector.connect(**db_config)
@@ -181,6 +196,7 @@ def crear_curso(nombre, estado):
         conn.close()
     except Exception as e:
         print(f"DB error crear curso: {e}")
+
 
 def crear_usuario(username, password, names, lastnames, rol):
     try:
@@ -195,8 +211,10 @@ def crear_usuario(username, password, names, lastnames, rol):
         conn.close()
 
         _agregar_a_freeradius(username, password)
+        _reiniciar_freeradius()
     except Exception as e:
         print(f"DB error crear usuario: {e}")
+
 
 # Funciones internas para archivo FreeRADIUS
 
@@ -206,6 +224,7 @@ def _agregar_a_freeradius(username, password):
             f.write(f"\n{username}\tCleartext-Password := \"{password}\"\n\tReply-Message := \"Bienvenido {username}\"\n")
     except Exception as e:
         print(f"Error escribiendo en FreeRADIUS: {e}")
+
 
 def _actualizar_freeradius_password(username, password):
     try:
@@ -230,6 +249,7 @@ def _actualizar_freeradius_password(username, password):
     except Exception as e:
         print(f"Error actualizando FreeRADIUS: {e}")
 
+
 def _eliminar_de_freeradius(username):
     try:
         with open(FREERADIUS_USERS_FILE, "r") as f:
@@ -243,10 +263,17 @@ def _eliminar_de_freeradius(username):
                 continue
             if line.strip().startswith(username):
                 skip_next = True
-            else:
-                new_lines.append(line)
+                continue
+            new_lines.append(line)
 
         with open(FREERADIUS_USERS_FILE, "w") as f:
             f.writelines(new_lines)
     except Exception as e:
         print(f"Error eliminando de FreeRADIUS: {e}")
+
+
+def _reiniciar_freeradius():
+    try:
+        subprocess.run(["sudo", "systemctl", "restart", "freeradius"], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error al reiniciar FreeRADIUS: {e}")
