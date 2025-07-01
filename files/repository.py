@@ -121,6 +121,18 @@ def actualizar_usuario(username, names, lastnames, rol, password=None):
     except Exception as e:
         print(f"DB error actualizar usuario: {e}")
 
+def eliminar_usuario(username):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM user WHERE username = %s", (username,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        _eliminar_de_freeradius(username)
+    except Exception as e:
+        print(f"DB error eliminar usuario: {e}")
 
 def actualizar_curso(idcurso, nombre, estado):
     try:
@@ -217,3 +229,24 @@ def _actualizar_freeradius_password(username, password):
             f.writelines(new_lines)
     except Exception as e:
         print(f"Error actualizando FreeRADIUS: {e}")
+
+def _eliminar_de_freeradius(username):
+    try:
+        with open(FREERADIUS_USERS_FILE, "r") as f:
+            lines = f.readlines()
+
+        new_lines = []
+        skip_next = False
+        for line in lines:
+            if skip_next:
+                skip_next = False
+                continue
+            if line.strip().startswith(username):
+                skip_next = True
+            else:
+                new_lines.append(line)
+
+        with open(FREERADIUS_USERS_FILE, "w") as f:
+            f.writelines(new_lines)
+    except Exception as e:
+        print(f"Error eliminando de FreeRADIUS: {e}")
