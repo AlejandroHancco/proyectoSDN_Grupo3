@@ -181,9 +181,10 @@ def asignar_curso(username):
     cursos_disponibles = [c for c in all_cursos if c["estado"] == "activo" and c["idcurso"] not in ids_asignados]
 
     return render_template("asignarCurso.html",
-                           profesor=profesor,
-                           cursos_asignados=cursos_asignados,
-                           cursos_disponibles=cursos_disponibles)
+                       usuario=profesor,
+                       cursos_asignados=cursos_asignados,
+                       cursos_disponibles=cursos_disponibles)
+
 
 
 @app.route("/crear_usuario", methods=["GET", "POST"])
