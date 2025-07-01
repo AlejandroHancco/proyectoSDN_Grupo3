@@ -108,6 +108,15 @@ def get_all_cursos():
     except Exception as e:
         print(f"DB error cursos: {e}")
         return []
+def inscribir_usuario_en_curso(username, idcurso):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    cursor.execute("SELECT iduser FROM user WHERE username = %s", (username,))
+    user_id = cursor.fetchone()[0]
+    cursor.execute("INSERT INTO inscripcion (user_iduser, curso_idcurso) VALUES (%s, %s)", (user_id, idcurso))
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 
 def get_all_roles():
