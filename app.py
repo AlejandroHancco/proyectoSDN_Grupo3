@@ -47,9 +47,22 @@ def editar_curso(idcurso):
         nombre = request.form.get("nombre")
         estado = request.form.get("estado")
         repository.actualizar_curso(idcurso, nombre, estado)
-        return redirect(url_for("login"))  # Redirige a login o a donde veas el admin
+        return redirect(url_for("login"))  # Redirige al panel del admin
     curso = repository.get_curso_por_id(idcurso)
     return render_template("editarCurso.html", curso=curso)
+
+# Editar usuario
+@app.route("/editar_usuario/<username>", methods=["GET", "POST"])
+def editar_usuario(username):
+    if request.method == "POST":
+        names = request.form.get("names")
+        lastnames = request.form.get("lastnames")
+        rol = int(request.form.get("rol"))
+        repository.actualizar_usuario(username, names, lastnames, rol)
+        return redirect(url_for("login"))  # O redirige a una vista del panel
+    usuario = repository.get_usuario_por_username(username)
+    return render_template("editarUsuario.html", usuario=usuario)
+
 
 # Eliminar curso
 @app.route("/eliminar_curso/<int:idcurso>")
