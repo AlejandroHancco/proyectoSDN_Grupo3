@@ -6,16 +6,20 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
-    <div class="container py-5">
-        <!-- Bienvenida -->
-        <div class="text-center mb-4">
-            <h2>Bienvenido, {{ usuario.names }} {{ usuario.lastnames }}</h2>
-            <h5 class="text-muted">Rol: {{ usuario.rolname }}</h5>
+    <!-- Encabezado con Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid justify-content-between">
+            <span class="navbar-text text-white">
+                Bienvenido, {{ usuario.names }} {{ usuario.lastnames }} ({{ usuario.rolname }})
+            </span>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-light">Cerrar Sesión</a>
         </div>
+    </nav>
 
+    <div class="container py-5">
         <!-- Panel de opciones -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
+        <div class="row g-4 mb-5 justify-content-center">
+            <div class="col-md-5">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
                         <h5 class="card-title">Gestión de Usuarios</h5>
@@ -25,7 +29,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
                         <h5 class="card-title">Gestión de Cursos</h5>
@@ -34,29 +38,19 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Ver Métricas</h5>
-                        <p class="card-text">Accede al panel de monitoreo.</p>
-                        <a href="http://localhost:9090" class="btn btn-primary mb-2" target="_blank">Prometheus</a><br>
-                        <a href="http://localhost:3000" class="btn btn-secondary" target="_blank">Grafana</a>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Tabla de Usuarios -->
         <h4 id="usuarios" class="mt-4">Lista de Usuarios</h4>
         <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark text-center">
                     <tr>
                         <th>Usuario</th>
                         <th>Nombre</th>
                         <th>Apellido</th>
                         <th>Rol</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -66,6 +60,10 @@
                         <td>{{ u.names }}</td>
                         <td>{{ u.lastnames }}</td>
                         <td>{{ u.rolname }}</td>
+                        <td class="text-center">
+                            <a href="/editar_usuario/{{ u.username }}" class="btn btn-sm btn-warning">Editar</a>
+                            <a href="/eliminar_usuario/{{ u.username }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas eliminar este usuario?')">Eliminar</a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -75,8 +73,8 @@
         <!-- Tabla de Cursos -->
         <h4 id="cursos" class="mt-5">Lista de Cursos</h4>
         <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark text-center">
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
@@ -93,11 +91,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-
-        <!-- Botón de cerrar sesión -->
-        <div class="mt-5 text-center">
-            <a href="{{ url_for('logout') }}" class="btn btn-danger">Cerrar Sesión</a>
         </div>
     </div>
 </body>
