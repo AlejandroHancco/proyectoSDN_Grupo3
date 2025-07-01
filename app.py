@@ -22,11 +22,11 @@ def login():
             if rol == "alumno":
                 return redirect(url_for("panel_alumno"))
             elif rol == "profesor":
-                return render_template("profesorPrincipal.html", usuario=usuario)
+                return redirect(url_for("panel_profesor"))
             elif rol == "administrador":
                 return redirect(url_for("panel_admin"))
             elif rol == "invitado":
-                return render_template("invitadoPrincipal.html", usuario=usuario)
+                return redirect(url_for("panel_invitado"))
             else:
                 return f"Rol desconocido: {rol}", 403
         else:
@@ -39,7 +39,7 @@ def logout():
     return redirect(url_for("login"))
 
 # ---------- PANEL ADMIN ----------
-@app.route("/admin")
+@app.route("/panelAdmin")
 def panel_admin():
     if "usuario" not in session:
         return redirect(url_for("login"))
@@ -83,6 +83,35 @@ def inscribirse(idcurso):
     except Exception as e:
         print(f"Error inscribiendo en curso: {e}")
     return redirect(url_for("panel_alumno"))
+
+# ---------- PANEL INVITADO ----------
+@app.route("/panelInvitado")
+def panel_invitado():
+    if "usuario" not in session:
+        return redirect(url_for("login"))
+
+    usuario = session["usuario"]
+    all_cursos = repository.get_all_cursos()
+    cursos_disponibles = [c for c in all_cursos if c["estado"] == "activo"]
+
+    return render_template("invitadoPrincipal.html", usuario=usuario, cursos_disponibles=cursos_disponibles)
+
+# ---------- PANEL PROFESOR ----------
+@app.route("/panelProfesor")
+def panel_profesor():
+    if "usuario" not in session:
+        return redirect(url_for("login"))
+
+    usuario = session["usuario"]
+    all_cursos = repository.get_all_cursos()
+    cursos = []
+    for c in all_cursos:
+        if c["estado"] == "activo":
+            inscritos = repository.get_inscritos_en_curso(c["idcurso"])
+            curso_con_estudiantes = c.copy()
+            curso_con_estudiantes["inscritos"] = inscritos
+            cursos.append(curso_con_estudiantes)
+    return render_template("profesorPrincipal.html", usuario=usuario, cursos=cursos)
 
 # ---------- CURSOS ----------
 @app.route("/editar_curso/<int:idcurso>", methods=["GET", "POST"])
