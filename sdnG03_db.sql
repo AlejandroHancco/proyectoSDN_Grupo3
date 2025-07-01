@@ -51,6 +51,7 @@ CREATE TABLE role_has_rule (
 CREATE TABLE curso (
     idcurso INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
+    
     estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo'
 );
 
@@ -103,6 +104,10 @@ INSERT INTO curso (nombre, estado) VALUES
 INSERT INTO inscripcion (user_iduser, curso_idcurso) VALUES
 (
     (SELECT iduser FROM user WHERE username = 'alumno1'),
+    (SELECT idcurso FROM curso WHERE nombre = 'Curso Python Básico')
+),
+    (
+    (SELECT iduser FROM user WHERE username = 'profesor1'),
     (SELECT idcurso FROM curso WHERE nombre = 'Curso Python Básico')
 ),
 (
