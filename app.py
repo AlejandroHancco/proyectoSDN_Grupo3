@@ -79,7 +79,7 @@ def panel_alumno():
 def inscribirse(idcurso):
     username = session["usuario"]["username"]
     try:
-        repository.inscribir_usuario_en_curso(username, idcurso)
+        repository.inscribir_usuario_en_curso(username, idcurso,rol_id=2)
     except Exception as e:
         print(f"Error inscribiendo en curso: {e}")
     return redirect(url_for("panel_alumno"))
@@ -170,7 +170,7 @@ def asignar_curso(username):
     if request.method == "POST":
         idcurso = request.form.get("idcurso")
         try:
-            repository.inscribir_usuario_en_curso(username, idcurso, idrol=3)  # Rol 3 = Profesor
+            repository.inscribir_usuario_en_curso(username, idcurso, rol_id=3)  # Rol 3 = Profesor
         except Exception as e:
             print(f"Error asignando curso a profesor: {e}")
         return redirect(url_for("asignar_curso", username=username))
