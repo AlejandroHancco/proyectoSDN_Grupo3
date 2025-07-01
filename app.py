@@ -105,5 +105,35 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+def getAllUsuarios():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT u.username, u.names, u.lastnames, r.rolname
+            FROM user u
+            JOIN role r ON u.rol = r.idrole
+        """)
+        usuarios = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return usuarios
+    except Exception as e:
+        print(f"DB error usuarios: {e}")
+        return []
+
+def getAllCursos():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT idcurso, nombre, estado FROM curso")
+        cursos = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return cursos
+    except Exception as e:
+        print(f"DB error cursos: {e}")
+        return []
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=30000, debug=True)
