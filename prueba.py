@@ -10,9 +10,9 @@ dst_port = 9000
 
 # Ruta de switches (ordenados) y puertos de salida
 route = [
-    {"dpid": "00:00:72:e0:80:7e:85:4c", "out_port": 3},
-    {"dpid": "00:00:aa:51:aa:ba:72:41", "out_port": 5},
-    {"dpid": "00:00:5e:c7:6e:c6:11:4c", "out_port": 3},
+    {"dpid": "00:00:f2:20:f9:45:4c:4e", "out_port": 3},  # sw3 → sw4
+    {"dpid": "00:00:5e:c7:6e:c6:11:4c", "out_port": 8},  # sw4 → sw5
+    {"dpid": "00:00:1a:74:72:3f:ef:44", "out_port": 2},  # sw5 → h3
 ]
 
 # Puertos conectados a hosts
