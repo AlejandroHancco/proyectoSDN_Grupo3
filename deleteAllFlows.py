@@ -1,63 +1,76 @@
 import requests
 
-CONTROLLER = "http://localhost:8080"
-SWITCHES_URL = f"{CONTROLLER}/switches"
-FLOWS_URL = f"{CONTROLLER}/wm/staticflowpusher/list/all/json"
-DELETE_URL = f"{CONTROLLER}/wm/staticflowpusher/json"
-PUSH_URL = DELETE_URL
+CONTROLLER_IP = "127.0.0.1"  # Cambia si tu controlador no está en localhost
+CONTROLLER_PORT = 8080
+BASE_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}"
 
-def get_all_switches():
+FLOW_PUSH_URL = f"{BASE_URL}/wm/staticflowpusher/json"
+GET_SWITCHES_URL = f"{BASE_URL}/wm/core/controller/switches/json"
+LIST_FLOWS_URL = f"{BASE_URL}/wm/staticflowpusher/list/all/json"
+
+
+def get_switches():
     try:
-        res = requests.get(SWITCHES_URL)
+        res = requests.get(GET_SWITCHES_URL)
         res.raise_for_status()
         return [sw["dpid"] for sw in res.json()]
     except Exception as e:
-        print(f"Error getting switches: {e}")
+        print(f"[ERR] No se pudo obtener switches: {e}")
         return []
+
 
 def get_all_flows():
     try:
-        res = requests.get(FLOWS_URL)
+        res = requests.get(LIST_FLOWS_URL)
         res.raise_for_status()
         return res.json()
     except Exception as e:
-        print(f"Error getting flows: {e}")
+        print(f"[ERR] No se pudo obtener flows: {e}")
         return {}
 
-def delete_flow(name):
-    res = requests.delete(DELETE_URL, json={"name": name})
-    if res.status_code == 200:
-        print(f"[✓] Deleted {name}")
-    else:
-        print(f"[✗] Failed to delete {name}: {res.text}")
 
-def push_default_controller_flow(dpid):
+def delete_flow(flow_name):
+    try:
+        res = requests.delete(FLOW_PUSH_URL, json={"name": flow_name})
+        if res.status_code == 200:
+            print(f"[OK] Deleted {flow_name}")
+        else:
+            print(f"[ERR] Al borrar {flow_name}: {res.text}")
+    except Exception as e:
+        print(f"[ERR] Exception al borrar flow {flow_name}: {e}")
+
+
+def add_controller_flow(switch_dpid):
     flow = {
-        "switch": dpid,
-        "name": f"default_ctrl_{dpid[-2:]}",
+        "switch": switch_dpid,
+        "name": f"to_controller_{switch_dpid[-4:]}",
         "priority": 0,
         "active": True,
         "actions": "output=controller"
     }
-    res = requests.post(PUSH_URL, json=flow)
-    if res.status_code == 200:
-        print(f"[✓] Inserted controller flow for {dpid}")
-    else:
-        print(f"[✗] Failed to insert flow for {dpid}: {res.text}")
+    try:
+        res = requests.post(FLOW_PUSH_URL, json=flow)
+        if res.status_code == 200:
+            print(f"[OK] Flow to controller insertado en {switch_dpid}")
+        else:
+            print(f"[ERR] Insertar flow en {switch_dpid}: {res.text}")
+    except Exception as e:
+        print(f"[ERR] Error insertando default flow en {switch_dpid}: {e}")
 
-def main():
-    switches = get_all_switches()
+
+def reset_all_flows():
+    print("[INFO] Obteniendo flows actuales...")
     flows = get_all_flows()
+    for switch_dpid, flow_list in flows.items():
+        for flow_entry in flow_list:
+            for flow_name in flow_entry.keys():
+                delete_flow(flow_name)
 
-    for dpid, flow_list in flows.items():
-        for entry in flow_list:
-            for name in entry.keys():
-                # Solo borra si no es el default controller flow
-                if not name.startswith("default_ctrl_"):
-                    delete_flow(name)
-
+    print("[INFO] Reinserción de reglas default hacia el controller...")
+    switches = get_switches()
     for dpid in switches:
-        push_default_controller_flow(dpid)
+        add_controller_flow(dpid)
+
 
 if __name__ == "__main__":
-    main()
+    reset_all_flows()
