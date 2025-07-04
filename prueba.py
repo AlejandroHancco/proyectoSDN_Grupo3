@@ -1,22 +1,33 @@
 import requests
 
 CONTROLLER = "http://localhost:8080"
+ROUTE_URL = f"{CONTROLLER}/wm/topology/route"
 PUSH_URL = f"{CONTROLLER}/wm/staticflowpusher/json"
 
-# IPs y puerto TCP
+# Datos IP y puerto TCP
 src_ip = "10.0.0.1"
 dst_ip = "10.0.0.3"
 dst_port = 9000
 
-# Ruta switches con in_port y out_port
-# Aquí in_port es el puerto por donde entra el paquete en el switch,
-# out_port es hacia dónde debe salir para seguir la ruta
-route = [
-    {"dpid": "00:00:f2:20:f9:45:4c:4e", "in_port": 3, "out_port": 2},  # sw3
-    {"dpid": "00:00:aa:51:aa:ba:72:41", "in_port": 2, "out_port": 4},  # sw4
-    {"dpid": "00:00:1a:74:72:3f:ef:44", "in_port": 2, "out_port": 3},  # sw5
-]
+# DPID y puerto del switch origen y destino
+src_dpid = "00:00:f2:20:f9:45:4c:4e"  # sw3
+src_port = 3  # puerto conectado al h1
+dst_dpid = "00:00:1a:74:72:3f:ef:44"  # sw5
+dst_port = 3  # puerto conectado al h3
 
+def get_route():
+    url = f"{ROUTE_URL}/{src_dpid}/{src_port}/{dst_dpid}/{dst_port}/json"
+    res = requests.get(url)
+    data = res.json()
+
+    route = []
+    for i in range(0, len(data) - 1, 2):
+        sw = data[i]["switch"]
+        in_port = data[i]["port"]["portNumber"]
+        out_port = data[i+1]["port"]["portNumber"]
+        route.append({"dpid": sw, "in_port": in_port, "out_port": out_port})
+
+    return route
 
 def build_tcp_flow(switch, in_port, out_port, ip_src, ip_dst, tcp_port, flow_id, reverse=False):
     flow = {
@@ -42,8 +53,6 @@ def build_tcp_flow(switch, in_port, out_port, ip_src, ip_dst, tcp_port, flow_id,
     return flow
 
 def build_arp_flow(switch, in_port, out_port):
-    # Para ARP, normalmente dejamos pasar broadcast, aquí saldrá por out_port
-    # Pero para simetría, podemos crear flow para in_port y out_port
     return {
         "switch": switch,
         "name": f"allow_arp_{switch[-2:]}_{in_port}_{out_port}",
@@ -62,24 +71,22 @@ def push_flow(flow):
         print(f"[ERR] Failed on {flow['switch']}: {res.text}")
 
 def main():
+    route = get_route()
     for i, hop in enumerate(route):
         sw = hop["dpid"]
         in_port = hop["in_port"]
         out_port = hop["out_port"]
 
-        # TCP forward
+        # TCP
         fwd = build_tcp_flow(sw, in_port, out_port, src_ip, dst_ip, dst_port, f"fwd_tcp_{i}")
-        push_flow(fwd)
-
-        # TCP reverse
         rev = build_tcp_flow(sw, out_port, in_port, src_ip, dst_ip, dst_port, f"rev_tcp_{i}", reverse=True)
-        push_flow(rev)
 
-        # ARP flows (both directions)
+        # ARP
         arp1 = build_arp_flow(sw, in_port, out_port)
         arp2 = build_arp_flow(sw, out_port, in_port)
-        push_flow(arp1)
-        push_flow(arp2)
+
+        for flow in [fwd, rev, arp1, arp2]:
+            push_flow(flow)
 
 if __name__ == "__main__":
     main()
