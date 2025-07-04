@@ -10,10 +10,11 @@ dst_port = 9000
 
 # Ruta de switches y puertos de salida hacia el siguiente salto
 route = [
-    {"dpid": "00:00:f2:20:f9:45:4c:4e", "out_port": 3},  # sw3 → sw4
-    {"dpid": "00:00:5e:c7:6e:c6:11:4c", "out_port": 8},  # sw4 → sw5
-    {"dpid": "00:00:1a:74:72:3f:ef:44", "out_port": 2},  # sw5 → h3
+    {"dpid": "00:00:f2:20:f9:45:4c:4e", "out_port": 3},  # sw3 → port to sw4
+    {"dpid": "00:00:aa:51:aa:ba:72:41", "out_port": 5},  # sw4 → port to sw5 (ens8)
+    {"dpid": "00:00:1a:74:72:3f:ef:44", "out_port": 5},  # sw5 → port to h3 (ens5)
 ]
+
 
 # Puerto desde h1 hacia sw3
 host1_in_port = 2  # h1 → sw3
