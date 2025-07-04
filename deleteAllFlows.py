@@ -1,6 +1,6 @@
 import requests
 
-CONTROLLER = "http://10.20.12.162:8080"
+CONTROLLER = "http://localhost:8080"
 SWITCHES_URL = f"{CONTROLLER}/switches"
 FLOWS_URL = f"{CONTROLLER}/wm/staticflowpusher/list/all/json"
 DELETE_URL = f"{CONTROLLER}/wm/staticflowpusher/json"
