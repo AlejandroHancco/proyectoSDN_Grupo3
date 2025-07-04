@@ -12,9 +12,9 @@ dst_port = 9000
 # Aquí in_port es el puerto por donde entra el paquete en el switch,
 # out_port es hacia dónde debe salir para seguir la ruta
 route = [
-    {"dpid": "00:00:f2:20:f9:45:4c:4e", "in_port": "ens6", "out_port": "ens5"},  # sw3
-    {"dpid": "00:00:aa:51:aa:ba:72:41", "in_port": "ens5", "out_port": "ens7"},  # sw4
-    {"dpid": "00:00:1a:74:72:3f:ef:44", "in_port": "ens5", "out_port": "ens6"},  # sw5
+    {"dpid": "00:00:f2:20:f9:45:4c:4e", "in_port": 3, "out_port": 2},  # sw3
+    {"dpid": "00:00:aa:51:aa:ba:72:41", "in_port": 2, "out_port": 4},  # sw4
+    {"dpid": "00:00:1a:74:72:3f:ef:44", "in_port": 2, "out_port": 3},  # sw5
 ]
 
 
