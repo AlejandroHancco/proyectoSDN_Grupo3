@@ -25,7 +25,7 @@ def build_tcp_flow(switch, in_port, out_port, ip_src, ip_dst, tcp_port, flow_id,
     flow = {
         "switch": switch,
         "name": flow_id,
-        "priority": 40000,             # ✅ entero
+        "priority": 30000,             # ✅ entero
         "eth_type": 2048,              # ✅ 0x0800 decimal
         "ip_proto": 6,                 # ✅ TCP
         "in_port": int(in_port),
