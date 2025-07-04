@@ -1,6 +1,6 @@
 import requests
 
-CONTROLLER_IP = "10.20.12.162"
+CONTROLLER_IP = "127.0.0.1"
 CONTROLLER_PORT = 8080
 BASE_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher"
 
