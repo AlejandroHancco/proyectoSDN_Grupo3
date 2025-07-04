@@ -1,6 +1,6 @@
 import requests
 
-floodlight_ip = "10.20.12.162"
+floodlight_ip = "127.0.0.1"
 base_url = f"http://{floodlight_ip}:8080/wm/staticflowpusher"
 
 def get_all_flows():
