@@ -1,38 +1,63 @@
 import requests
 
-floodlight_ip = "127.0.0.1"
-base_url = f"http://{floodlight_ip}:8080/wm/staticflowpusher"
+FLOODLIGHT_IP = "127.0.0.1"
+BASE = f"http://{FLOODLIGHT_IP}:8080/wm"
+PUSH = f"{BASE}/staticflowpusher/json"
+DEVICE_URL = f"{BASE}/device/"
+FLOWLIST_URL = f"{BASE}/staticflowpusher/list/all/json"
 
-def get_all_flows():
+def get_switch_dpids():
     try:
-        response = requests.get(f"{base_url}/list/all/json")
-        if response.status_code == 200:
-            return response.json()
-        else:
-            print(f"Failed to fetch flows. Status code: {response.status_code}")
-            return {}
-    except requests.exceptions.RequestException as e:
-        print(f"Error connecting to Floodlight: {e}")
+        res = requests.get(DEVICE_URL)
+        res.raise_for_status()
+        devices = res.json()
+    except:
+        return []
+    dpids = set()
+    for dev in devices:
+        for ap in dev.get("attachmentPoint", []):
+            dpid = ap.get("switchDPID")
+            if dpid:
+                dpids.add(dpid)
+    return list(dpids)
+
+def get_flows():
+    try:
+        res = requests.get(FLOWLIST_URL)
+        res.raise_for_status()
+        return res.json()
+    except:
         return {}
 
-def delete_flow(flow_name):
-    try:
-        data = {"name": flow_name}
-        response = requests.delete(f"{base_url}/json", json=data)
-        if response.status_code == 200:
-            print(f"Successfully deleted flow: {flow_name}")
-        else:
-            print(f"Failed to delete flow: {flow_name}. Status code: {response.status_code}")
-    except requests.exceptions.RequestException as e:
-        print(f"Error deleting flow {flow_name}: {e}")
+def delete_flow(name):
+    requests.delete(PUSH, json={"name": name})
 
-def delete_all_flows():
-    all_flows = get_all_flows()
+def push_flow(dpid):
+    flow = {
+        "switch": dpid,
+        "name": f"default_ctrl_{dpid[-2:]}",
+        "priority": 0,
+        "active": "true",
+        "actions": "output=controller"
+    }
+    requests.post(PUSH, json=flow)
 
-    for switch, flow_list in all_flows.items():
-        for flow_entry in flow_list:
-            for flow_name in flow_entry.keys():
-                delete_flow(flow_name)
+def main():
+    dpids = get_switch_dpids()
+    if not dpids:
+        print("No se detectaron switches.")
+        return
+
+    print(f"Switches: {dpids}")
+    flows = get_flows()
+    for dpid, f_list in flows.items():
+        for entry in f_list:
+            for name in entry:
+                if "controller" not in name:
+                    delete_flow(name)
+    for d in dpids:
+        push_flow(d)
+    print("Proceso completado.")
 
 if __name__ == "__main__":
-    delete_all_flows()
+    main()
