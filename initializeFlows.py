@@ -4,6 +4,7 @@ CONTROLLER_IP = "127.0.0.1"
 CONTROLLER_PORT = 8080
 BASE_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher"
 ALLOWED_PORT = 30000
+CONTROLLER_DST_IP = "10.20.12.162"
 
 def get_switches():
     url = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/core/controller/switches/json"
@@ -80,26 +81,26 @@ def main():
             "actions": "output=flood"
         })
 
-        # Bloquear ICMP (Ping) hacia controlador
+        # ❌ Bloquear ICMP hacia controlador
         add_flow({
             "switch": dpid,
             "name": f"block_icmp_to_controller_{i}",
             "priority": "20000",
             "eth_type": "0x0800",
-            "ip_proto": "1",
-            "ipv4_dst": "10.20.12.162",
+            "ip_proto": "1",  # ICMP
+            "ipv4_dst": CONTROLLER_DST_IP,
             "active": "true",
-            "actions": ""
+            "actions": ""  # drop
         })
 
-        # Bloquear todo lo demás (IPv4)
+        # ❌ Bloquear todo IPv4 restante
         add_flow({
             "switch": dpid,
             "name": f"block_all_ipv4_{i}",
             "priority": "1000",
             "eth_type": "0x0800",
             "active": "true",
-            "actions": ""
+            "actions": ""  # drop
         })
 
 if __name__ == "__main__":
