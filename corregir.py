@@ -1,63 +1,64 @@
 import requests
 
-CONTROLLER_IP = "127.0.0.1"
-CONTROLLER_PORT = 8080
-BASE_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher"
+CONTROLLER = "http://10.20.12.162:8080"
+PUSH_URL = f"{CONTROLLER}/wm/staticflowpusher/json"
 
-def fix_eth_type(match_dict):
-    # Corrige el eth_type: de "0x0x800" o "0x0x806" a entero decimal
-    eth_type = match_dict.get("eth_type", None)
-    if eth_type is not None:
-        if isinstance(eth_type, str):
-            # limpiar string y convertir
-            if "0x0x800" in eth_type:
-                match_dict["eth_type"] = 2048
-            elif "0x0x806" in eth_type:
-                match_dict["eth_type"] = 2054
-            else:
-                # intenta convertir hex a int si tiene 0x solo una vez
-                try:
-                    if eth_type.startswith("0x"):
-                        match_dict["eth_type"] = int(eth_type, 16)
-                except:
-                    pass
-    return match_dict
+src_ip = "10.0.0.1"
+dst_ip = "10.0.0.3"
+dst_port = 9000
 
-def get_all_flows():
-    url = f"{BASE_URL}/list/all/json"
-    r = requests.get(url)
-    r.raise_for_status()
-    return r.json()
+# Ruta: switches intermedios en orden, con out_port hacia el siguiente switch
+route = [
+    {"dpid": "00:00:72:e0:80:7e:85:4c", "out_port": 3},
+    {"dpid": "00:00:aa:51:aa:ba:72:41", "out_port": 5},
+    {"dpid": "00:00:5e:c7:6e:c6:11:4c", "out_port": 3},
+]
 
-def delete_flow(name):
-    url = f"{BASE_URL}/json"
-    r = requests.delete(url, json={"name": name})
-    r.raise_for_status()
+# Puertos hacia los hosts
+host_in_port = 2  # desde 10.0.0.1
+server_out_port = 3  # hacia 10.0.0.3
 
-def add_flow(flow):
-    url = f"{BASE_URL}/json"
-    r = requests.post(url, json=flow)
-    r.raise_for_status()
+def build_flow(switch, in_port, out_port, flow_id):
+    return {
+        "switch": switch,
+        "name": flow_id,
+        "priority": "40000",
+        "etherType": "0x0800",
+        "ip_proto": "6",  # TCP
+        "ipv4_src": src_ip,
+        "ipv4_dst": dst_ip,
+        "tcp_dst": str(dst_port),
+        "in_port": str(in_port),
+        "active": "true",
+        "actions": f"output={out_port}"
+    }
+
+def push_flow(flow):
+    try:
+        res = requests.post(PUSH_URL, json=flow)
+        res.raise_for_status()
+        print(f"[OK] Flow inserted on switch {flow['switch']}")
+    except Exception as e:
+        print(f"[ERR] Failed to insert flow on switch {flow['switch']}: {e}")
 
 def main():
-    flows = get_all_flows()
+    for i in range(len(route)):
+        sw = route[i]["dpid"]
 
-    for switch, flow_list in flows.items():
-        for flow_dict in flow_list:
-            for flow_name, flow in flow_dict.items():
-                print(f"Procesando flow {flow_name} en switch {switch}")
+        if i == 0:
+            in_port = host_in_port
+        else:
+            # We assume previous switch sent to this one via out_port
+            in_port = route[i-1]["out_port"]
 
-                # Arreglar eth_type en el match
-                if "match" in flow:
-                    flow["match"] = fix_eth_type(flow["match"])
+        if i == len(route) - 1:
+            out_port = server_out_port
+        else:
+            out_port = route[i]["out_port"]
 
-                # Eliminar flow original
-                delete_flow(flow_name)
-                print(f"Flow {flow_name} eliminado.")
-
-                # Reagregar flow corregido
-                add_flow(flow)
-                print(f"Flow {flow_name} agregado corregido.")
+        flow_id = f"tcp_to_server_{i}"
+        flow = build_flow(sw, in_port, out_port, flow_id)
+        push_flow(flow)
 
 if __name__ == "__main__":
     main()
