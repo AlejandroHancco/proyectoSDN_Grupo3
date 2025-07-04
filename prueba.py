@@ -22,7 +22,7 @@ def build_tcp_flow(switch, in_port, out_port, ip_src, ip_dst, tcp_port, flow_id,
     match = {
         "switch": switch,
         "name": flow_id,
-        "priority": "40000",
+        "priority": 40000,
         "eth_type": "0x0800",
         "ip_proto": "6",  # TCP
         "in_port": str(in_port),
@@ -45,7 +45,7 @@ def build_arp_flow(switch, out_port):
     return {
         "switch": switch,
         "name": f"allow_arp_{switch[-2:]}",
-        "priority": "30000",
+        "priority": 30000,
         "eth_type": "0x0806",
         "active": "true",
         "actions": f"output={out_port}"
