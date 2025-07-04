@@ -1,90 +1,87 @@
 import requests
 
-CONTROLLER = "http://127.0.0.1:8080"
+CONTROLLER = "http://10.20.12.162:8080"
 PUSH_URL = f"{CONTROLLER}/wm/staticflowpusher/json"
 
-# IPs de los hosts
 src_ip = "10.0.0.1"
 dst_ip = "10.0.0.3"
 dst_port = 9000
 
-# Ruta en orden desde host origen hasta host destino
+# Ruta intermedia
 route = [
-    {"dpid": "00:00:72:e0:80:7e:85:4c", "out_port": 3},  # sw1
-    {"dpid": "00:00:aa:51:aa:ba:72:41", "out_port": 5},  # sw2
-    {"dpid": "00:00:5e:c7:6e:c6:11:4c", "out_port": 3},  # sw3
+    {"dpid": "00:00:72:e0:80:7e:85:4c", "out_port": 3},
+    {"dpid": "00:00:aa:51:aa:ba:72:41", "out_port": 5},
+    {"dpid": "00:00:5e:c7:6e:c6:11:4c", "out_port": 3},
 ]
 
-host_in_port = 2     # puerto de entrada del host 10.0.0.1 en el primer switch
-server_out_port = 3  # puerto de salida al servidor 10.0.0.3 en el último switch
+# Puertos hacia los hosts
+host1_in_port = 2  # h1 hacia el primer switch
+host3_out_port = 3  # desde último switch hacia h3
 
-def build_forward_flow(switch, in_port, out_port, flow_id):
-    return {
+def build_tcp_flow(switch, in_port, out_port, ip_src, ip_dst, tcp_port, flow_id, reverse=False):
+    match = {
         "switch": switch,
         "name": flow_id,
         "priority": "40000",
         "eth_type": "0x0800",
-        "ip_proto": "6",
-        "ipv4_src": src_ip,
-        "ipv4_dst": dst_ip,
-        "tcp_dst": str(dst_port),
+        "ip_proto": "6",  # TCP
         "in_port": str(in_port),
         "active": "true",
         "actions": f"output={out_port}"
     }
 
-def build_reverse_flow(switch, in_port, out_port, flow_id):
-    return {
-        "switch": switch,
-        "name": flow_id,
-        "priority": "40000",
-        "eth_type": "0x0800",
-        "ip_proto": "6",
-        "ipv4_src": dst_ip,
-        "ipv4_dst": src_ip,
-        "tcp_src": str(dst_port),
-        "in_port": str(in_port),
-        "active": "true",
-        "actions": f"output={out_port}"
-    }
+    if not reverse:
+        match["ipv4_src"] = ip_src
+        match["ipv4_dst"] = ip_dst
+        match["tcp_dst"] = str(tcp_port)
+    else:
+        match["ipv4_src"] = ip_dst
+        match["ipv4_dst"] = ip_src
+        match["tcp_src"] = str(tcp_port)
 
-def build_arp_flow(switch):
+    return match
+
+def build_arp_flow(switch, out_port):
     return {
         "switch": switch,
         "name": f"allow_arp_{switch[-2:]}",
-        "priority": "40000",
+        "priority": "30000",
         "eth_type": "0x0806",
         "active": "true",
-        "actions": "output=flood"
+        "actions": f"output={out_port}"
     }
 
 def push_flow(flow):
-    try:
-        res = requests.post(PUSH_URL, json=flow)
-        res.raise_for_status()
-        print(f"[OK] Flow inserted on switch {flow['switch']} ({flow['name']})")
-    except Exception as e:
-        print(f"[ERR] Failed to insert flow on switch {flow['switch']} ({flow['name']}): {e}")
+    res = requests.post(PUSH_URL, json=flow)
+    if res.status_code == 200:
+        print(f"[OK] Inserted {flow['name']} on {flow['switch']}")
+    else:
+        print(f"[ERR] Failed on {flow['switch']}: {res.text}")
 
 def main():
     for i in range(len(route)):
         sw = route[i]["dpid"]
+        out_port = route[i]["out_port"]
 
-        # Entradas y salidas
-        in_port = host_in_port if i == 0 else route[i - 1]["out_port"]
-        out_port = server_out_port if i == len(route) - 1 else route[i]["out_port"]
+        if i == 0:
+            in_port = host1_in_port
+        else:
+            in_port = route[i - 1]["out_port"]
 
-        # Forward flow
-        forward_flow = build_forward_flow(sw, in_port, out_port, f"tcp_to_server_{i}")
-        push_flow(forward_flow)
+        # TCP hacia servidor
+        flow = build_tcp_flow(sw, in_port, out_port, src_ip, dst_ip, dst_port, f"fwd_tcp_{i}")
+        push_flow(flow)
 
-        # Reverse flow
-        reverse_flow = build_reverse_flow(sw, out_port, in_port, f"tcp_from_server_{i}")
-        push_flow(reverse_flow)
+        # TCP respuesta
+        rev_flow = build_tcp_flow(sw, out_port, in_port, src_ip, dst_ip, dst_port, f"rev_tcp_{i}", reverse=True)
+        push_flow(rev_flow)
 
-        # ARP flood
-        arp_flow = build_arp_flow(sw)
-        push_flow(arp_flow)
+        # ARP broadcast
+        arp_fwd = build_arp_flow(sw, out_port)
+        push_flow(arp_fwd)
+
+        arp_rev = build_arp_flow(sw, in_port)
+        push_flow(arp_rev)
 
 if __name__ == "__main__":
     main()
