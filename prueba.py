@@ -1,6 +1,6 @@
 import requests
 
-CONTROLLER = "http://10.20.12.162:8080"
+CONTROLLER = "http://localhost:8080"
 PUSH_URL = f"{CONTROLLER}/wm/staticflowpusher/json"
 
 src_ip = "10.0.0.1"
