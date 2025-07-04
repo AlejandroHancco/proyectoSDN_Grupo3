@@ -23,7 +23,7 @@ def build_forward_flow(switch, in_port, out_port, flow_id):
         "switch": switch,
         "name": flow_id,
         "priority": "40000",
-        "eth_type": "0x0800",
+        "eth_type": "0800",
         "ip_proto": "6",
         "ipv4_src": src_ip,
         "ipv4_dst": dst_ip,
@@ -38,7 +38,7 @@ def build_reverse_flow(switch, in_port, out_port, flow_id):
         "switch": switch,
         "name": flow_id,
         "priority": "40000",
-        "eth_type": "0x0800",
+        "eth_type": "0800",
         "ip_proto": "6",
         "ipv4_src": dst_ip,
         "ipv4_dst": src_ip,
@@ -53,7 +53,7 @@ def build_arp_flow(switch):
         "switch": switch,
         "name": f"allow_arp_{switch[-2:]}",
         "priority": "40000",
-        "eth_type": "0x0806",
+        "eth_type": "0806",
         "active": "true",
         "actions": "output=flood"
     }
