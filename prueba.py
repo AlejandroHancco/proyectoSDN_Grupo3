@@ -22,22 +22,22 @@ def build_tcp_flow(switch, in_port, out_port, ip_src, ip_dst, tcp_port, flow_id,
     match = {
         "switch": switch,
         "name": flow_id,
-        "priority": 40000,
-        "eth_type": "0x0800",
-        "ip_proto": "6",  # TCP
-        "in_port": str(in_port),
-        "active": "true",
+        "priority": 40000,           # ✅ int, no str
+        "eth_type": 2048,            # ✅ 0x0800 en decimal
+        "ip_proto": 6,               # ✅ TCP
+        "in_port": int(in_port),
+        "active": True,              # ✅ bool, no str
         "actions": f"output={out_port}"
     }
 
     if not reverse:
         match["ipv4_src"] = ip_src
         match["ipv4_dst"] = ip_dst
-        match["tcp_dst"] = str(tcp_port)
+        match["tcp_dst"] = int(tcp_port)
     else:
         match["ipv4_src"] = ip_dst
         match["ipv4_dst"] = ip_src
-        match["tcp_src"] = str(tcp_port)
+        match["tcp_src"] = int(tcp_port)
 
     return match
 
@@ -45,9 +45,9 @@ def build_arp_flow(switch, out_port):
     return {
         "switch": switch,
         "name": f"allow_arp_{switch[-2:]}",
-        "priority": 30000,
-        "eth_type": "0x0806",
-        "active": "true",
+        "priority": 30000,         # ✅ entero
+        "eth_type": 2054,          # ✅ 0x0806 en decimal
+        "active": True,
         "actions": f"output={out_port}"
     }
 
@@ -76,7 +76,7 @@ def main():
         rev_flow = build_tcp_flow(sw, out_port, in_port, src_ip, dst_ip, dst_port, f"rev_tcp_{i}", reverse=True)
         push_flow(rev_flow)
 
-        # ARP broadcast
+        # ARP
         arp_fwd = build_arp_flow(sw, out_port)
         push_flow(arp_fwd)
 
