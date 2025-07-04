@@ -1,76 +1,76 @@
 import requests
 
-CONTROLLER_IP = "127.0.0.1"  # Cambia si tu controlador no está en localhost
+CONTROLLER_IP = "127.0.0.1"
 CONTROLLER_PORT = 8080
-BASE_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}"
+BASE_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm"
 
-FLOW_PUSH_URL = f"{BASE_URL}/wm/staticflowpusher/json"
-GET_SWITCHES_URL = f"{BASE_URL}/wm/core/controller/switches/json"
-LIST_FLOWS_URL = f"{BASE_URL}/wm/staticflowpusher/list/all/json"
+def get_all_flows():
+    print("[INFO] Obteniendo flows actuales...")
+    try:
+        response = requests.get(f"{BASE_URL}/staticflowpusher/list/all/json")
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"[ERR] Error conectando a Floodlight: {e}")
+        return {}
 
+def delete_flow(flow_name):
+    try:
+        data = {"name": flow_name}
+        response = requests.delete(f"{BASE_URL}/staticflowpusher/json", json=data)
+        if response.status_code == 200:
+            print(f"[OK] Deleted {flow_name}")
+        else:
+            print(f"[ERR] Falló eliminación de {flow_name}: {response.status_code}")
+    except Exception as e:
+        print(f"[ERR] Error al eliminar {flow_name}: {e}")
 
 def get_switches():
     try:
-        res = requests.get(GET_SWITCHES_URL)
-        res.raise_for_status()
-        return [sw["dpid"] for sw in res.json()]
+        response = requests.get(f"{BASE_URL}/core/controller/switches/json")
+        response.raise_for_status()
+        return response.json()
     except Exception as e:
         print(f"[ERR] No se pudo obtener switches: {e}")
         return []
 
-
-def get_all_flows():
-    try:
-        res = requests.get(LIST_FLOWS_URL)
-        res.raise_for_status()
-        return res.json()
-    except Exception as e:
-        print(f"[ERR] No se pudo obtener flows: {e}")
-        return {}
-
-
-def delete_flow(flow_name):
-    try:
-        res = requests.delete(FLOW_PUSH_URL, json={"name": flow_name})
-        if res.status_code == 200:
-            print(f"[OK] Deleted {flow_name}")
-        else:
-            print(f"[ERR] Al borrar {flow_name}: {res.text}")
-    except Exception as e:
-        print(f"[ERR] Exception al borrar flow {flow_name}: {e}")
-
-
-def add_controller_flow(switch_dpid):
-    flow = {
+def insert_default_flow(switch_dpid):
+    default_flow = {
         "switch": switch_dpid,
-        "name": f"to_controller_{switch_dpid[-4:]}",
+        "name": f"default_ctrl_{switch_dpid[-2:]}",
         "priority": 0,
         "active": True,
         "actions": "output=controller"
     }
     try:
-        res = requests.post(FLOW_PUSH_URL, json=flow)
-        if res.status_code == 200:
-            print(f"[OK] Flow to controller insertado en {switch_dpid}")
+        response = requests.post(f"{BASE_URL}/staticflowpusher/json", json=default_flow)
+        if response.status_code == 200:
+            print(f"[OK] Default flow inserted in {switch_dpid}")
         else:
-            print(f"[ERR] Insertar flow en {switch_dpid}: {res.text}")
+            print(f"[ERR] No se pudo insertar default flow en {switch_dpid}: {response.text}")
     except Exception as e:
-        print(f"[ERR] Error insertando default flow en {switch_dpid}: {e}")
+        print(f"[ERR] Error al insertar default flow en {switch_dpid}: {e}")
 
+def delete_all_flows():
+    all_flows = get_all_flows()
 
-def reset_all_flows():
-    print("[INFO] Obteniendo flows actuales...")
-    flows = get_all_flows()
-    for switch_dpid, flow_list in flows.items():
+    for switch, flow_list in all_flows.items():
         for flow_entry in flow_list:
             for flow_name in flow_entry.keys():
                 delete_flow(flow_name)
 
     print("[INFO] Reinserción de reglas default hacia el controller...")
-    switches = get_switches()
-    for dpid in switches:
-        add_controller_flow(dpid)
 
+    switches = get_switches()
+    for sw in switches:
+        try:
+            dpid = sw["switchDPID"]
+            insert_default_flow(dpid)
+        except KeyError:
+            print(f"[ERR] No se encontró 'switchDPID' en {sw}")
+        except Exception as e:
+            print(f"[ERR] Error inesperado con switch: {e}")
 
 if __name__ == "__main__":
-    reset_all_flows()
+    delete_all_flows()
+
