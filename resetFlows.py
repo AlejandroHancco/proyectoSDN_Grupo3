@@ -47,29 +47,37 @@ def main():
     for i, sw in enumerate(switches):
         dpid = sw["switchDPID"]
 
-        # Permitir ARP - eth_type decimal 2054
+        # Permitir ARP
         add_flow({
             "switch": dpid,
             "name": f"allow_arp_{i}",
             "priority": "30000",
-            "eth_type": 2054,  # decimal para ARP
+            "eth_type": 2054,
             "active": "true",
-            "actions": "output=flood"
+            "instructions": {
+                "instruction_apply_actions": {
+                    "actions": "output=flood"
+                }
+            }
         })
 
-        # Permitir TCP hacia puerto 30000 - eth_type decimal 2048
+        # Permitir TCP destino puerto 30000
         add_flow({
             "switch": dpid,
             "name": f"allow_tcp_dst_{i}",
             "priority": "25000",
-            "eth_type": 2048,  # decimal para IPv4
+            "eth_type": 2048,
             "ip_proto": "6",
             "tcp_dst": str(ALLOWED_PORT),
             "active": "true",
-            "actions": "output=flood"
+            "instructions": {
+                "instruction_apply_actions": {
+                    "actions": "output=flood"
+                }
+            }
         })
 
-        # Permitir TCP desde puerto 30000 - eth_type decimal 2048
+        # Permitir TCP origen puerto 30000
         add_flow({
             "switch": dpid,
             "name": f"allow_tcp_src_{i}",
@@ -78,29 +86,33 @@ def main():
             "ip_proto": "6",
             "tcp_src": str(ALLOWED_PORT),
             "active": "true",
-            "actions": "output=flood"
+            "instructions": {
+                "instruction_apply_actions": {
+                    "actions": "output=flood"
+                }
+            }
         })
 
-        # Bloquear ICMP hacia el controlador - eth_type decimal 2048
+        # Bloquear ICMP hacia controlador
         add_flow({
             "switch": dpid,
             "name": f"block_icmp_to_controller_{i}",
-            "priority": "20000",
+            "priority": "40000",
             "eth_type": 2048,
-            "ip_proto": "1",  # ICMP
+            "ip_proto": "1",
             "ipv4_dst": CONTROLLER_DST_IP,
             "active": "true",
-            "actions": ""  # drop
+            "instructions": {}
         })
 
-        # Bloquear todo el tráfico IPv4 restante - eth_type decimal 2048
+        # Bloquear todo IPv4 restante
         add_flow({
             "switch": dpid,
             "name": f"block_all_ipv4_{i}",
             "priority": "1000",
             "eth_type": 2048,
             "active": "true",
-            "actions": ""  # drop
+            "instructions": {}
         })
 
 if __name__ == "__main__":
