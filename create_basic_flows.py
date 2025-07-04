@@ -2,7 +2,7 @@ import requests
 import json
 
 # Configuración del controlador Floodlight
-CONTROLLER_IP = "10.20.12.65"  # Cambiar por la IP del controlador si no es local
+CONTROLLER_IP = "10.20.12.162"  # Cambiar por la IP del controlador si no es local
 CONTROLLER_PORT = 8080       # Puerto por defecto de la REST API del Floodlight
 
 # Configuración de la regla
