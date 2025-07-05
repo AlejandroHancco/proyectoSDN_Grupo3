@@ -27,16 +27,19 @@ CREATE TABLE user (
     FOREIGN KEY (rol) REFERENCES role(idrole)
 );
 
--- Tabla de reglas
+-- Tabla de reglas actualizada con sw_id y sw_port
 CREATE TABLE rule (
     idrule INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
     description TEXT,
     svr_ip VARCHAR(15),
     svr_port INT,
-    svr_mac VARCHAR(17),
-    action VARCHAR(20)
+    svr_mac VARCHAR(17) DEFAULT NULL,
+    action ENUM('allow', 'deny') NOT NULL,
+    sw_id VARCHAR(50) DEFAULT NULL,   -- Switch destino (puede ser null si es para Internet)
+    sw_port INT DEFAULT NULL          -- Puerto del switch conectado al servidor
 );
+
 
 -- Tabla de relación rol-regla
 CREATE TABLE role_has_rule (
@@ -82,20 +85,27 @@ INSERT INTO user (username, password, names, lastnames, code, rol, session, time
 ('invitado1', 'invitado1', 'Profesor', 'Apellido1', 'P001', 4, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
 ('alumno1', 'passalumno', 'Alumno', 'Ejemplo', 'A001', 2, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0);
 
--- Insertar reglas
-INSERT INTO rule (name, description, svr_ip, svr_port, svr_mac, action) VALUES
-('Regla Admin', 'Acceso completo para admin', '10.0.0.3', 9000, 'fa:16:3e:a7:e1:fb', 'allow'),
-('Regla Admin', 'Acceso completo para admin', '10.0.0.3', 9001, 'fa:16:3e:a7:e1:fb', 'allow'),
-('Regla Admin', 'Acceso completo para admin', '10.0.0.3', 9002, 'fa:16:3e:a7:e1:fb', 'allow'),
-('Regla Admin', 'Acceso completo para admin', '10.0.0.3', 9003, 'fa:16:3e:a7:e1:fb', 'allow'),
-('Regla Admin', 'Acceso completo para admin', '10.0.0.3', 9004, 'fa:16:3e:a7:e1:fb', 'allow');
+-- Insertar reglas con identificación del switch y puerto del servidor
+INSERT INTO rule (name, description, svr_ip, svr_port, svr_mac, action, sw_id, sw_port) VALUES
+('Regla Admin - Curso 1', 'Acceso completo para admin al curso 9000', '10.0.0.3', 9000, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Regla Admin - Curso 2', 'Acceso completo para admin al curso 9001', '10.0.0.3', 9001, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Regla Admin - Curso 3', 'Acceso completo para admin al curso 9002', '10.0.0.3', 9002, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Regla Admin - Curso 4', 'Acceso completo para admin al curso 9003', '10.0.0.3', 9003, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Regla Admin - Curso 5', 'Acceso completo para admin al curso 9004', '10.0.0.3', 9004, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Acceso Internet', 'Permitir solo acceso a Internet para invitados', '8.8.8.8', 53, NULL, 'allow', NULL, NULL);
+
 
 -- Asociar reglas con roles
 INSERT INTO role_has_rule (role_idrole, rule_idrule) VALUES
 (1, 1),
-(2, 2),
-(3, 3),
-(4, 4);
+(1, 2),
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(2, 6),
+(3, 6),
+(4, 6);
 
 -- Insertar cursos con PUERTO y sin inscripciones
 INSERT INTO curso (codigo, nombre, estado, puerto) VALUES
