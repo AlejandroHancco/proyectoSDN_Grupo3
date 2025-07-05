@@ -40,7 +40,7 @@ def login():
             if not usuario:
                 return "Usuario no encontrado en BD", 404
             session["usuario"] = usuario
-            agregar_flows_para_usuario(username)
+            repository.agregar_flows_para_usuario(username)
             rol = usuario["rolname"].lower()
             return redirect(url_for(f"panel_{rol}"))
         else:
