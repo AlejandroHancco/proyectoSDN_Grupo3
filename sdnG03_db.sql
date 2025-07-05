@@ -47,19 +47,20 @@ CREATE TABLE role_has_rule (
     FOREIGN KEY (rule_idrule) REFERENCES rule(idrule)
 );
 
--- Tabla cursos con estado y código
+-- Tabla cursos con estado y código, y nuevo campo 'puerto'
 CREATE TABLE curso (
     idcurso INT PRIMARY KEY AUTO_INCREMENT,
     codigo VARCHAR(20) UNIQUE NOT NULL,
     nombre VARCHAR(100) NOT NULL,
-    estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo'
+    estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo',
+    puerto INT NOT NULL  -- Nuevo campo
 );
 
--- Tabla inscripcion con distinción de rol
+-- Tabla inscripcion (dejamos sin datos insertados)
 CREATE TABLE inscripcion (
     user_iduser INT,
     curso_idcurso INT,
-    rol_id INT,  -- 2 = alumno, 3 = profesor
+    rol_id INT,
     fecha_inscripcion DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_iduser, curso_idcurso, rol_id),
     FOREIGN KEY (user_iduser) REFERENCES user(iduser),
@@ -79,7 +80,7 @@ INSERT INTO user (username, password, names, lastnames, code, rol, session, time
 ('admin1', 'admin123', 'Admin', 'User', 'ADMIN001', 1, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
 ('profesor1', 'profesor1', 'Profesor', 'Apellido1', 'P001', 3, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
 ('invitado1', 'invitado1', 'Profesor', 'Apellido1', 'P001', 4, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
-('alumno1', 'passalumno', 'Alumno', 'Ejemplo', 'A001', 2, 'active', NOW(), '10.0.0.5', '00:00:11:22:33:44:55:66', 2, 'de:ad:be:ef:00:01', 0);
+('alumno1', 'passalumno', 'Alumno', 'Ejemplo', 'A001', 2, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0);
 
 -- Insertar reglas
 INSERT INTO rule (name, description, svr_ip, svr_port, svr_mac, action) VALUES
@@ -95,22 +96,10 @@ INSERT INTO role_has_rule (role_idrole, rule_idrule) VALUES
 (3, 3),
 (4, 4);
 
--- Insertar cursos (con código)
-INSERT INTO curso (codigo, nombre, estado) VALUES
-('CURS001', 'Curso Python Básico', 'activo'),
-('CURS002', 'Curso Redes', 'activo'),
-('CURS003', 'Curso Seguridad', 'inactivo');
-
--- Inscribir usuario como alumno y profesor
-INSERT INTO inscripcion (user_iduser, curso_idcurso, rol_id) VALUES
-((SELECT iduser FROM user WHERE username = 'alumno1'),
- (SELECT idcurso FROM curso WHERE nombre = 'Curso Python Básico'),
- 2),
-
-((SELECT iduser FROM user WHERE username = 'profesor1'),
- (SELECT idcurso FROM curso WHERE nombre = 'Curso Python Básico'),
- 3),
-
-((SELECT iduser FROM user WHERE username = 'alumno1'),
- (SELECT idcurso FROM curso WHERE nombre = 'Curso Redes'),
- 2);
+-- Insertar cursos con PUERTO y sin inscripciones
+INSERT INTO curso (codigo, nombre, estado, puerto) VALUES
+('TEL120', 'Curso Python Básico', 'activo', 9000),
+('TEL121', 'Curso Redes', 'activo', 9001),
+('TEL122', 'Curso Seguridad', 'inactivo', 9002),
+('TEL123', 'Curso SDN', 'activo', 9003),
+('TEL124', 'Curso Cisco', 'activo', 9004);
