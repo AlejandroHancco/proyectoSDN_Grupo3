@@ -25,6 +25,44 @@ def authenticate_user(username, password):
     reply = client.SendPacket(req)
     return reply.code == AccessAccept
 
+def agregar_flows_para_usuario(username):
+    user = get_user_db(username)
+    if not user:
+        print(f"Usuario {username} no encontrado.")
+        return
+
+    rol_id = user['rol']
+    ip_usuario = user['code']  # Asumimos que este campo contiene la IP fija del usuario
+    sw_src, port_src, mac_src = get_attachement_points(ip_usuario, flag=False)
+    if not sw_src:
+        print(f"No se encontró punto de conexión para {username}")
+        return
+
+    cursos = get_cursos_usuario_por_rol(username, rol_id)
+    if not cursos:
+        print(f"No se encontraron cursos para {username}")
+        return
+
+    for curso in cursos:
+        servidores = get_servidores_permitidos(curso['idcurso'], rol_id)
+        for srv in servidores:
+            sw_dst, port_dst, mac_dst = get_attachement_points(srv['ip'], flag=False)
+            if not sw_dst:
+                continue
+            handler = f"{username}-{srv['ip']}-{srv['puerto']}"
+            crear_conexion(
+                src_dpid=sw_src,
+                src_port=port_src,
+                dst_dpid=sw_dst,
+                dst_port=port_dst,
+                ip_usuario=ip_usuario,
+                ip_recurso=srv['ip'],
+                mac_usuario=mac_src,
+                mac_recurso=mac_dst,
+                port_recurso=srv['puerto'],
+                handlername=handler
+            )
+            
 def get_user_db(username):
     try:
         conn = mysql.connector.connect(**db_config)
