@@ -33,7 +33,9 @@ def agregar_flows_para_usuario(username):
 
     rol_id = user['rol']
     ip_usuario = user['ip']  # Asumimos que este campo contiene la IP fija del usuario
-    sw_src, port_src, mac_src = flowUtils.get_attachement_points(ip_usuario, flag=False)
+    sw_src=user['sw_id']
+    port_src=user['sw_port']
+    mac_src=user['mac']
     if not sw_src:
         print(f"No se encontró punto de conexión para {username}")
         return
@@ -46,7 +48,7 @@ def agregar_flows_para_usuario(username):
     for curso in cursos:
         servidores = get_servidores_permitidos(curso['idcurso'], rol_id)
         for srv in servidores:
-            sw_dst, port_dst, mac_dst = flowUtils.get_attachement_points(srv['ip'], flag=False)
+            sw_dst, port_dst, mac_dst ="00:00:1a:74:72:3f:ef:44",3,"fa:16:3e:a7:e1:fb"
             if not sw_dst:
                 continue
             handler = f"{username}-{srv['ip']}-{srv['puerto']}"
