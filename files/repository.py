@@ -68,7 +68,9 @@ def get_user_db(username):
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT u.username, u.names, u.lastnames, u.code, u.rol, r.rolname
+            SELECT u.iduser, u.username, u.password, u.names, u.lastnames,
+                   u.code, u.rol, u.session, u.time_stamp, u.ip, u.sw_id,
+                   u.sw_port, u.mac, u.numrules, r.rolname
             FROM user u
             JOIN role r ON u.rol = r.idrole
             WHERE u.username = %s
@@ -81,6 +83,7 @@ def get_user_db(username):
     except Exception as e:
         print(f"DB error: {e}")
         return None
+
 
 # ---------- CURSOS ----------
 def get_cursos_usuario_por_rol(username, rol_id):
