@@ -53,7 +53,7 @@ CREATE TABLE curso (
     codigo VARCHAR(20) UNIQUE NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo',
-    puerto INT NOT NULL  -- Nuevo campo
+    puerto INT NOT NULL
 );
 
 -- Tabla inscripcion (dejamos sin datos insertados)
@@ -84,10 +84,11 @@ INSERT INTO user (username, password, names, lastnames, code, rol, session, time
 
 -- Insertar reglas
 INSERT INTO rule (name, description, svr_ip, svr_port, svr_mac, action) VALUES
-('Regla Admin', 'Acceso completo para admin', '192.168.201.200', 8080, 'f2:20:f9:45:4c:4e', 'allow'),
-('Regla User', 'Acceso limitado para usuario', '192.168.201.201', 8081, 'fa:16:3e:0a:37:49', 'allow'),
-('Regla Invitado', 'Acceso restringido para invitado', '192.168.201.202', 8082, 'de:ad:be:ef:00:01', 'deny'),
-('Regla Alumno', 'Acceso para alumnos a cursos', '192.168.201.203', 8083, 'de:ad:be:ef:00:02', 'allow');
+('Regla Admin', 'Acceso completo para admin', '10.0.0.3', 9000, 'fa:16:3e:a7:e1:fb', 'allow'),
+('Regla Admin', 'Acceso completo para admin', '10.0.0.3', 9001, 'fa:16:3e:a7:e1:fb', 'allow'),
+('Regla Admin', 'Acceso completo para admin', '10.0.0.3', 9002, 'fa:16:3e:a7:e1:fb', 'allow'),
+('Regla Admin', 'Acceso completo para admin', '10.0.0.3', 9003, 'fa:16:3e:a7:e1:fb', 'allow'),
+('Regla Admin', 'Acceso completo para admin', '10.0.0.3', 9004, 'fa:16:3e:a7:e1:fb', 'allow');
 
 -- Asociar reglas con roles
 INSERT INTO role_has_rule (role_idrole, rule_idrule) VALUES
