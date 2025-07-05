@@ -32,7 +32,7 @@ def agregar_flows_para_usuario(username):
         return
 
     rol_id = user['rol']
-    ip_usuario = user['code']  # Asumimos que este campo contiene la IP fija del usuario
+    ip_usuario = user['ip']  # Asumimos que este campo contiene la IP fija del usuario
     sw_src, port_src, mac_src = flowUtils.get_attachement_points(ip_usuario, flag=False)
     if not sw_src:
         print(f"No se encontró punto de conexión para {username}")
