@@ -1,7 +1,7 @@
 import mysql.connector
 import os
 import subprocess
-import flowUtils
+from . import flowUtils
 # Configuración MySQL
 db_config = {
     "host": "192.168.201.200",
