@@ -1,66 +1,58 @@
 import requests
 import json
 
-# Configuración del controlador Floodlight
-CONTROLLER_IP = "127.0.0.1"  # Cambiar por la IP del controlador si no es local
-CONTROLLER_PORT = 8080       # Puerto por defecto de la REST API del Floodlight
+CONTROLLER_IP = "127.0.0.1"
+CONTROLLER_PORT = 8080
 
-# Configuración de la regla
-RULE = {
-    "switch": "",
-    "name": "flow-basic",
-    "priority": "2",
-    "ipv4_dst": "10.0.0.0/24",
-    "eth_type": "0x0800",
-    "active": "true",
-    "actions": ""
-}
-
-# URL de la REST API para la instalación de flujos
+CLEAR_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher/clear"
 ADD_FLOW_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher/json"
+SWITCHES_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/core/controller/switches/json"
 
 def get_switches():
-    """
-    Obtiene la lista de switches conectados al controlador Floodlight.
-    """
-    url = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/core/controller/switches/json"
     try:
-        response = requests.get(url)
+        response = requests.get(SWITCHES_URL)
         response.raise_for_status()
         return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error al obtener la lista de switches: {e}")
+    except Exception as e:
+        print(f"❌ Error al obtener switches: {e}")
         return []
 
-def add_flow_to_switch(switch_id,j):
-    """
-    Agrega la regla de flujo al switch especificado.
-    """
-    flow = RULE.copy()
-    flow["switch"] = switch_id
-    flow["name"] = f"flow-basic-{j}"
+def clear_flows(switch_dpid):
+    try:
+        url = f"{CLEAR_URL}/{switch_dpid}/json"
+        response = requests.get(url)
+        response.raise_for_status()
+        print(f"✅ Reglas limpiadas para switch {switch_dpid}")
+    except Exception as e:
+        print(f"❌ Error al limpiar reglas en {switch_dpid}: {e}")
+
+def add_default_flow(switch_dpid):
+    flow = {
+        "switch": switch_dpid,
+        "name": f"default-to-controller",
+        "priority": "0",
+        "eth_type": "0x0800",
+        "active": "true",
+        "actions": "output=controller"
+    }
     try:
         response = requests.post(ADD_FLOW_URL, data=json.dumps(flow))
         response.raise_for_status()
-        print(f"Regla agregada al switch {switch_id}: {response.status_code}")
-    except requests.exceptions.RequestException as e:
-        print(f"Error al agregar la regla al switch {switch_id}: {e}")
+        print(f"✅ Regla por defecto insertada en {switch_dpid}")
+    except Exception as e:
+        print(f"❌ Error al insertar regla en {switch_dpid}: {e}")
 
 def main():
-    # Obtener todos los switches conectados
     switches = get_switches()
-    print(switches)
     if not switches:
-        print("No se encontraron switches conectados.")
+        print("⚠️ No hay switches conectados")
         return
 
-    # Instalar la regla en cada switch
-    j = 1
     for switch in switches:
-        switch_id = switch.get("switchDPID")
-        if switch_id:
-            add_flow_to_switch(switch_id,j)
-            j += 1
+        dpid = switch.get("switchDPID")
+        if dpid:
+            clear_flows(dpid)
+            add_default_flow(dpid)
 
 if __name__ == "__main__":
     main()
