@@ -98,6 +98,23 @@ def get_user_db(username):
     except Exception as e:
         print(f"DB error: {e}")
         return None
+def get_profesores_de_curso(idcurso):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT u.username, u.names, u.lastnames
+            FROM inscripcion i
+            JOIN user u ON i.user_iduser = u.iduser
+            WHERE i.curso_idcurso = %s AND i.rol_id = 3
+        """, (idcurso,))
+        profesores = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return profesores
+    except Exception as e:
+        print(f"DB error get_profesores_de_curso: {e}")
+        return []
 
 
 # ---------- CURSOS ----------
@@ -106,7 +123,7 @@ def get_cursos_usuario_por_rol(username, rol_id):
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT c.idcurso, c.nombre, c.codigo, c.estado
+            SELECT c.idcurso, c.nombre, c.codigo, c.estado, c.puerto
             FROM curso c
             JOIN inscripcion i ON c.idcurso = i.curso_idcurso
             JOIN user u ON i.user_iduser = u.iduser
