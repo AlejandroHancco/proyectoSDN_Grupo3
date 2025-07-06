@@ -85,7 +85,7 @@ def get_user_db(username):
         query = """
             SELECT u.iduser, u.username, u.password, u.names, u.lastnames,
                    u.code, u.rol, u.session, u.time_stamp, u.ip, u.sw_id,
-                   u.sw_port, u.mac, u.numrules, r.rolname
+                   u.sw_port, u.mac, r.rolname
             FROM user u
             JOIN role r ON u.rol = r.idrole
             WHERE u.username = %s
