@@ -39,6 +39,7 @@ def login():
             usuario = repository.get_user_db(username)
             if not usuario:
                 return "Usuario no encontrado en BD", 404
+            repository.actualizar_timestamp_login(username)
             session["usuario"] = usuario
             repository.agregar_flows_para_usuario(username)
             rol = usuario["rolname"].lower()
