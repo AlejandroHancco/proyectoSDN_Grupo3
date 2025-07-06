@@ -248,6 +248,26 @@ def inscribir_usuario_en_curso(username, idcurso, rol_id):
         conn.close()
     except Exception as e:
         print(f"DB error inscribir usuario: {e}")
+def eliminar_inscripcion_alumno(username, idcurso):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Obtener el ID del usuario
+        cursor.execute("SELECT iduser FROM user WHERE username = %s", (username,))
+        user_id = cursor.fetchone()[0]
+
+        # Eliminar la inscripción como alumno (rol_id = 2)
+        cursor.execute("""
+            DELETE FROM inscripcion
+            WHERE user_iduser = %s AND curso_idcurso = %s AND rol_id = 2
+        """, (user_id, idcurso))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"DB error eliminar inscripcion alumno: {e}")
 
 def get_inscritos_en_curso(idcurso):
     try:
@@ -480,4 +500,24 @@ def eliminar_flow(flow_name):
         response.raise_for_status()
     except Exception as e:
         print(f"Error al eliminar flow {flow_name}: {e}")
+
+def eliminar_flows_de_usuario_para_curso(username, idcurso):
+    try:
+        user = get_user_db(username)
+        if not user:
+            print(f"Usuario {username} no encontrado.")
+            return
+
+        ip_usuario = user["ip"]
+        mac_usuario = user["mac"]
+
+        servidores = get_servidores_permitidos(idcurso)
+
+        for srv in servidores:
+            handlername = f"{username}-{srv['ip']}-{srv['puerto']}"
+            eliminar_flow(handlername)
+            print(f"Eliminado flow de handler: {handlername}")
+    except Exception as e:
+        print(f"Error eliminando flows del curso {idcurso} para {username}: {e}")
+
 
