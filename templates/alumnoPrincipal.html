@@ -17,17 +17,28 @@
                 <table class="table table-bordered table-striped align-middle">
                     <thead class="table-dark text-center">
                         <tr>
-                            <th>ID</th>
+                            <th>Código del Curso</th>
                             <th>Nombre</th>
-                            <th>Estado</th>
+                            <th>Puerto</th>
+                            <th>Profesores</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for c in cursos_inscritos %}
                         <tr>
-                            <td>{{ c.idcurso }}</td>
+                            <td>{{ c.codigo }}</td>
                             <td>{{ c.nombre }}</td>
-                            <td>{{ c.estado }}</td>
+                            <td>{{ c.puerto }}</td>
+                            <td>
+                                {% for profe in c.profesores %}
+                                    {{ profe.names }} {{ profe.lastnames }}<br>
+                                {% endfor %}
+                            </td>
+                            <td class="text-center">
+                                <a href="/desinscribirse/{{ c.idcurso }}" class="btn btn-sm btn-danger">Desinscribirse</a>
+                                <a href="http://10.0.0.3:{{ c.puerto }}" target="_blank" class="btn btn-sm btn-primary">Entrar al curso</a>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -46,18 +57,18 @@
                 <table class="table table-bordered table-striped align-middle">
                     <thead class="table-dark text-center">
                         <tr>
-                            <th>ID</th>
+                            <th>Código del Curso</th>
                             <th>Nombre</th>
-                            <th>Estado</th>
+                            <th>Puerto</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for c in cursos_disponibles %}
                         <tr>
-                            <td>{{ c.idcurso }}</td>
+                            <td>{{ c.codigo }}</td>
                             <td>{{ c.nombre }}</td>
-                            <td>{{ c.estado }}</td>
+                            <td>{{ c.puerto }}</td>
                             <td class="text-center">
                                 <a href="/inscribirse/{{ c.idcurso }}" class="btn btn-sm btn-success">Inscribirse</a>
                             </td>
