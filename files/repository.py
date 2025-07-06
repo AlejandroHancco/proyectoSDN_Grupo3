@@ -9,6 +9,8 @@ db_config = {
     "password": "grupo3",
     "database": "sdnG03_db"
 }
+CONTROLLER_IP = "127.0.0.1"  
+CONTROLLER_PORT = 8080      
 
 FREERADIUS_USERS_FILE = "/etc/freeradius/3.0/users"
 
