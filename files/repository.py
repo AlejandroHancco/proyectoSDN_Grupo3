@@ -143,7 +143,7 @@ def get_all_cursos():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT idcurso, nombre, codigo, estado FROM curso")
+        cursor.execute("SELECT idcurso, nombre, codigo,puerto, estado FROM curso")
         cursos = cursor.fetchall()
         cursor.close()
         conn.close()
