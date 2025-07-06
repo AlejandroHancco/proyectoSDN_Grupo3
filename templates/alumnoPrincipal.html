@@ -31,10 +31,15 @@
                             <td>{{ c.nombre }}</td>
                             <td>{{ c.puerto }}</td>
                             <td>
+                            {% if c.profesores %}
                                 {% for profe in c.profesores %}
                                     {{ profe.names }} {{ profe.lastnames }}<br>
                                 {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Aún no hay profesores registrados</span>
+                            {% endif %}
                             </td>
+
                             <td class="text-center">
                                 <a href="/desinscribirse/{{ c.idcurso }}" class="btn btn-sm btn-danger">Desinscribirse</a>
                                 <a href="http://10.0.0.3:{{ c.puerto }}" target="_blank" class="btn btn-sm btn-primary">Entrar al curso</a>
