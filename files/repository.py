@@ -423,3 +423,40 @@ def _reiniciar_freeradius():
         subprocess.run(["sudo", "systemctl", "restart", "freeradius"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error al reiniciar FreeRADIUS: {e}")
+
+
+#Logout
+def eliminar_flows_usuario(ip_usuario, mac_usuario):
+    LIST_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher/list/all/json"
+    REMOVE_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher/json"
+
+    try:
+        response = requests.get(LIST_URL)
+        response.raise_for_status()
+        all_flows = response.json()
+
+        for dpid, flow_list in all_flows.items():
+            for flow_dict in flow_list:
+                # Algunos controladores encapsulan flows con su nombre como clave
+                for flow_name, flow in flow_dict.items():
+                    match = flow.get("match", {})
+                    eth_src = match.get("eth_src", "")
+                    eth_dst = match.get("eth_dst", "")
+                    ip_src = match.get("ipv4_src", "")
+                    ip_dst = match.get("ipv4_dst", "")
+
+                    if mac_usuario in (eth_src, eth_dst) or ip_usuario in (ip_src, ip_dst):
+                        eliminar_flow(flow_name)
+                        print(f"🗑️ Eliminado flow: {flow_name}")
+    except Exception as e:
+        print(f"❌ Error eliminando flows del usuario: {e}")
+
+
+def eliminar_flow(flow_name):
+    REMOVE_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher/json"
+    try:
+        response = requests.delete(REMOVE_URL, json={"name": flow_name})
+        response.raise_for_status()
+    except Exception as e:
+        print(f"❌ Error al eliminar flow {flow_name}: {e}")
+
