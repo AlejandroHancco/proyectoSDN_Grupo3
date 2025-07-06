@@ -145,6 +145,24 @@ def crear_curso(nombre, estado, codigo):
         conn.close()
     except Exception as e:
         print(f"DB error crear curso: {e}")
+def get_servidores_permitidos(idcurso, rol_id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT s.idservidor, s.ip, s.nombre, s.puerto
+            FROM servidor s
+            JOIN acceso a ON s.idservidor = a.servidor_idservidor
+            WHERE a.curso_idcurso = %s AND a.rol_id = %s
+        """
+        cursor.execute(query, (idcurso, rol_id))
+        servidores = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return servidores
+    except Exception as e:
+        print(f"DB error servidores permitidos: {e}")
+        return []
 
 def actualizar_curso(idcurso, nombre, estado, codigo):
     try:
