@@ -208,6 +208,20 @@ def asignar_curso(username):
                        profesor=profesor,
                        cursos_asignados=cursos_asignados,
                        cursos_disponibles=cursos_disponibles)
+@app.route("/desinscribirse/<int:idcurso>")
+@role_required("alumno")
+def desinscribirse(idcurso):
+    username = session["usuario"]["username"]
+    try:
+        repository.eliminar_inscripcion_alumno(username, idcurso)
+        repository.eliminar_flows_usuario(
+            session["usuario"]["ip"],
+            session["usuario"]["mac"]
+        )
+        repository.agregar_flows_para_usuario(username)
+    except Exception as e:
+        print(f"Error al desinscribirse del curso: {e}")
+    return redirect(url_for("panel_alumno"))
 
 @app.route("/desasignar_curso/<username>/<int:idcurso>")
 @role_required("administrador")
