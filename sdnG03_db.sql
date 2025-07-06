@@ -86,12 +86,12 @@ INSERT INTO user (username, password, names, lastnames, code, rol, session, time
 
 -- Insertar reglas con identificación del switch y puerto del servidor
 INSERT INTO rule (name, description, svr_ip, svr_port, svr_mac, action, sw_id, sw_port) VALUES
-('Regla Admin - Curso 1', 'Acceso completo para admin al curso 9000', '10.0.0.3', 9000, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
-('Regla Admin - Curso 2', 'Acceso completo para admin al curso 9001', '10.0.0.3', 9001, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
-('Regla Admin - Curso 3', 'Acceso completo para admin al curso 9002', '10.0.0.3', 9002, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
-('Regla Admin - Curso 4', 'Acceso completo para admin al curso 9003', '10.0.0.3', 9003, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
-('Regla Admin - Curso 5', 'Acceso completo para admin al curso 9004', '10.0.0.3', 9004, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
-('Acceso Internet', 'Permitir solo acceso a Internet para invitados', '8.8.8.8', 53, NULL, 'allow', NULL, NULL);
+('Regla Admin - Curso 1', 'Acceso completo para admin al curso Python', '10.0.0.3', 9001, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Regla Admin - Curso 2', 'Acceso completo para admin al curso Redes', '10.0.0.3', 9002, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Regla Admin - Curso 3', 'Acceso completo para admin al curso Seguridad', '10.0.0.3', 9003, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Regla Admin - Curso 4', 'Acceso completo para admin al curso SDN', '10.0.0.3', 9004, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Regla Profesores - Curso 5', 'Acceso administrativo para profesores', '10.0.0.3', 9000, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Acceso Internet', 'Permitir solo acceso a Internet', '10.0.0.3', 9005, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3);
 
 
 -- Asociar reglas con roles
@@ -108,8 +108,8 @@ INSERT INTO role_has_rule (role_idrole, rule_idrule) VALUES
 
 -- Insertar cursos con PUERTO y sin inscripciones
 INSERT INTO curso (codigo, nombre, estado, puerto) VALUES
-('TEL120', 'Curso Python Básico', 'activo', 9000),
-('TEL121', 'Curso Redes', 'activo', 9001),
-('TEL122', 'Curso Seguridad', 'inactivo', 9002),
-('TEL123', 'Curso SDN', 'activo', 9003),
-('TEL124', 'Curso Cisco', 'activo', 9004);
+('TEL120', 'Circuitos y Sistemas en Alta Frecuencia', 'activo', 9001),
+('TEL121', 'Teoría de Comunicaciones 2', 'activo', 9002),
+('TEL122', 'Ciberseguridad y Telemática Forense', 'activo', 9003),
+('TEL123', 'Redes Definidas en Software', 'activo', 9004);
+
