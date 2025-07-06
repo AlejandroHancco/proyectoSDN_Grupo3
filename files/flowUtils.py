@@ -1,3 +1,4 @@
+#Este script son las funciones que se conectan usa el repository para hacer llamados a la api del Floodlight 
 import yaml
 import requests
 import random
@@ -138,7 +139,6 @@ def crear_conexion(src_dpid, src_port, dst_dpid, dst_port, ip_usuario, ip_recurs
         return len(ruta)
     else:
         return len(ruta)/2
-
 
 def crear_flow(switch_dpid, in_port, out_port, ip_src, mac_src, ip_dst, mac_dst, protocol, port_dst, handler, flow_number):
     flow_name = f"{handler}-{flow_number}"
