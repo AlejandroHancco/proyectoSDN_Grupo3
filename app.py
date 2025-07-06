@@ -81,6 +81,7 @@ def inscribirse(idcurso):
     username = session["usuario"]["username"]
     try:
         repository.inscribir_usuario_en_curso(username, idcurso,rol_id=2)
+        repository.agregar_flows_para_usuario(username)
     except Exception as e:
         print(f"Error inscribiendo en curso: {e}")
     return redirect(url_for("panel_alumno"))
