@@ -29,15 +29,6 @@ def authenticate_user(username, password):
     reply = client.SendPacket(req)
     return reply.code == AccessAccept
 
-def actualizar_timestamp_login(username):
-    try:
-        connection = get_connection()
-        with connection.cursor() as cursor:
-            sql = "UPDATE user SET time_stamp = NOW() WHERE username = %s"
-            cursor.execute(sql, (username,))
-        connection.commit()
-    finally:
-        connection.close()
 
 def agregar_flows_para_usuario(username):
     user = get_user_db(username)
@@ -161,6 +152,20 @@ def get_all_cursos():
     except Exception as e:
         print(f"DB error cursos: {e}")
         return []
+
+def actualizar_timestamp_login(username):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE user SET time_stamp = NOW() WHERE username = %s", (username,))
+        conn.commit()
+        cursor.close()
+    except Exception as e:
+        print(f"DB error actualizar timestamp: {e}")
+    finally:
+        if conn:
+            conn.close()
+
 
 def get_curso_por_id(idcurso):
     try:
