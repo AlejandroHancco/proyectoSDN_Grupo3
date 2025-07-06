@@ -32,10 +32,11 @@ def agregar_flows_para_usuario(username):
         return
 
     rol_id = user['rol']
-    ip_usuario = user['ip']  # Asumimos que este campo contiene la IP fija del usuario
-    sw_src=user['sw_id']
-    port_src=user['sw_port']
-    mac_src=user['mac']
+    ip_usuario = user['ip']
+    sw_src = user['sw_id']
+    port_src = user['sw_port']
+    mac_src = user['mac']
+
     if not sw_src:
         print(f"No se encontró punto de conexión para {username}")
         return
@@ -46,12 +47,19 @@ def agregar_flows_para_usuario(username):
         return
 
     for curso in cursos:
-        servidores = get_servidores_permitidos(curso['idcurso'], rol_id)
+        servidores = get_servidores_permitidos(curso['idcurso'])
         for srv in servidores:
-            sw_dst, port_dst, mac_dst ="00:00:1a:74:72:3f:ef:44",3,"fa:16:3e:a7:e1:fb"
-            if not sw_dst:
+            # Obtenemos todos los datos directamente del servidor devuelto
+            sw_dst = srv['sw_id']
+            port_dst = srv['sw_port']
+            mac_dst = srv['mac']
+
+            if not sw_dst or not port_dst:
+                print(f"Datos incompletos del servidor para el curso {curso['idcurso']}")
                 continue
+
             handler = f"{username}-{srv['ip']}-{srv['puerto']}"
+
             crear_conexion(
                 src_dpid=sw_src,
                 src_port=port_src,
@@ -64,6 +72,7 @@ def agregar_flows_para_usuario(username):
                 port_recurso=srv['puerto'],
                 handlername=handler
             )
+
             
 def get_user_db(username):
     try:
@@ -145,24 +154,32 @@ def crear_curso(nombre, estado, codigo):
         conn.close()
     except Exception as e:
         print(f"DB error crear curso: {e}")
-def get_servidores_permitidos(idcurso, rol_id):
+def get_servidores_permitidos(idcurso, rol_id=None):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        query = """
-            SELECT s.idservidor, s.ip, s.nombre, s.puerto
-            FROM servidor s
-            JOIN acceso a ON s.idservidor = a.servidor_idservidor
-            WHERE a.curso_idcurso = %s AND a.rol_id = %s
-        """
-        cursor.execute(query, (idcurso, rol_id))
-        servidores = cursor.fetchall()
+
+        # Obtener puerto del curso
+        cursor.execute("SELECT puerto FROM curso WHERE idcurso = %s", (idcurso,))
+        curso = cursor.fetchone()
         cursor.close()
         conn.close()
-        return servidores
+
+        if not curso:
+            print(f"No se encontró curso con ID {idcurso}")
+            return []
+
+        return [{
+            "ip": "10.0.0.3",
+            "puerto": curso["puerto"],
+            "mac": "fa:16:3e:a7:e1:fb",
+            "sw_id": "00:00:1a:74:72:3f:ef:44",
+            "sw_port": 3
+        }]
     except Exception as e:
-        print(f"DB error servidores permitidos: {e}")
+        print(f"DB error servidores permitidos por curso: {e}")
         return []
+
 
 def actualizar_curso(idcurso, nombre, estado, codigo):
     try:
