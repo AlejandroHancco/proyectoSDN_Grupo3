@@ -1,3 +1,4 @@
+#Este script son las funciones del sql y algunas que implican el uso del FreeRadius y Floodlight
 import mysql.connector
 import os
 import subprocess
@@ -450,9 +451,9 @@ def eliminar_flows_usuario(ip_usuario, mac_usuario):
 
                     if mac_usuario in (eth_src, eth_dst) or ip_usuario in (ip_src, ip_dst):
                         eliminar_flow(flow_name)
-                        print(f"🗑️ Eliminado flow: {flow_name}")
+                        print(f"Eliminado flow: {flow_name}")
     except Exception as e:
-        print(f"❌ Error eliminando flows del usuario: {e}")
+        print(f"Error eliminando flows del usuario: {e}")
 
 
 def eliminar_flow(flow_name):
@@ -461,5 +462,5 @@ def eliminar_flow(flow_name):
         response = requests.delete(REMOVE_URL, json={"name": flow_name})
         response.raise_for_status()
     except Exception as e:
-        print(f"❌ Error al eliminar flow {flow_name}: {e}")
+        print(f"Error al eliminar flow {flow_name}: {e}")
 
