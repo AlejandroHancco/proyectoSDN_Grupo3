@@ -502,22 +502,27 @@ def eliminar_flow(flow_name):
         print(f"Error al eliminar flow {flow_name}: {e}")
 
 def eliminar_flows_de_usuario_para_curso(username, idcurso):
+    LIST_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher/list/all/json"
     try:
         user = get_user_db(username)
         if not user:
             print(f"Usuario {username} no encontrado.")
             return
 
-        ip_usuario = user["ip"]
-        mac_usuario = user["mac"]
-
         servidores = get_servidores_permitidos(idcurso)
 
+        response = requests.get(LIST_URL)
+        response.raise_for_status()
+        all_flows = response.json()
+
         for srv in servidores:
-            handlername = f"{username}-{srv['ip']}-{srv['puerto']}"
-            eliminar_flow(handlername)
-            print(f"Eliminado flow de handler: {handlername}")
+            base_name = f"{username}-{srv['ip']}-{srv['puerto']}"
+
+            for dpid, flow_list in all_flows.items():
+                for flow_dict in flow_list:
+                    for flow_name in flow_dict:
+                        if flow_name.startswith(base_name):
+                            eliminar_flow(flow_name)
+                            print(f"Eliminado flow del curso: {flow_name}")
     except Exception as e:
         print(f"Error eliminando flows del curso {idcurso} para {username}: {e}")
-
-
