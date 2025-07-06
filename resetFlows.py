@@ -1,3 +1,6 @@
+#Este script sirve para borrar todos los flow entries de los switches y dejar los default
+#Es decir, solo se permiten reglas para que hagan reconocimiento por mac y por FloodLight, no hay ping entre hosts
+#Nota: Nunca habrá ping entre hosts solo el acceso por el puerto de los cursos que se implementan automaticamente cada vez que se loguea 
 import requests
 import json
 
@@ -14,7 +17,7 @@ def get_switches():
         response.raise_for_status()
         return response.json()
     except Exception as e:
-        print(f"❌ Error al obtener switches: {e}")
+        print(f"Error al obtener switches: {e}")
         return []
 
 def clear_flows(dpid):
@@ -22,9 +25,9 @@ def clear_flows(dpid):
         url = f"{CLEAR_FLOW_URL}/{dpid}/json"
         response = requests.get(url)
         response.raise_for_status()
-        print(f"✅ Flows eliminados para switch {dpid}")
+        print(f"Flows eliminados para switch {dpid}")
     except Exception as e:
-        print(f"❌ Error limpiando flows de {dpid}: {e}")
+        print(f"Error limpiando flows de {dpid}: {e}")
 
 def add_discovery_flows(dpid):
     discovery_flows = [
@@ -50,14 +53,14 @@ def add_discovery_flows(dpid):
         try:
             response = requests.post(ADD_FLOW_URL, json=flow)
             response.raise_for_status()
-            print(f"✅ Flow agregado en {dpid}: {flow['name']}")
+            print(f"Flow agregado en {dpid}: {flow['name']}")
         except Exception as e:
-            print(f"❌ Error agregando flow en {dpid}: {e}")
+            print(f"Error agregando flow en {dpid}: {e}")
 
 def main():
     switches = get_switches()
     if not switches:
-        print("⚠️ No hay switches conectados al controlador.")
+        print("ALERTA: No hay switches conectados al controlador.")
         return
 
     for sw in switches:
