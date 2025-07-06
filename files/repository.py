@@ -46,37 +46,36 @@ def agregar_flows_para_usuario(username):
         return
 
     cursos = get_cursos_usuario_por_rol(username, rol_id)
-    if not cursos:
+    if cursos:
+        for curso in cursos:
+            servidores = get_servidores_permitidos(curso['idcurso'])
+            for srv in servidores:
+                sw_dst = srv['sw_id']
+                port_dst = srv['sw_port']
+                mac_dst = srv['mac']
+
+                if not sw_dst or not port_dst:
+                    print(f"Datos incompletos del servidor para el curso {curso['idcurso']}")
+                    continue
+
+                handler = f"{username}-{srv['ip']}-{srv['puerto']}"
+                flowUtils.crear_conexion(
+                    src_dpid=sw_src,
+                    src_port=port_src,
+                    dst_dpid=sw_dst,
+                    dst_port=port_dst,
+                    ip_usuario=ip_usuario,
+                    ip_recurso=srv['ip'],
+                    mac_usuario=mac_src,
+                    mac_recurso=mac_dst,
+                    port_recurso=srv['puerto'],
+                    handlername=handler
+                )
+    else:
         print(f"No se encontraron cursos para {username}")
-        return
 
-    for curso in cursos:
-        servidores = get_servidores_permitidos(curso['idcurso'])
-        for srv in servidores:
-            # Obtenemos todos los datos directamente del servidor devuelto
-            sw_dst = srv['sw_id']
-            port_dst = srv['sw_port']
-            mac_dst = srv['mac']
-
-            if not sw_dst or not port_dst:
-                print(f"Datos incompletos del servidor para el curso {curso['idcurso']}")
-                continue
-
-            handler = f"{username}-{srv['ip']}-{srv['puerto']}"
-
-            flowUtils.crear_conexion(
-                src_dpid=sw_src,
-                src_port=port_src,
-                dst_dpid=sw_dst,
-                dst_port=port_dst,
-                ip_usuario=ip_usuario,
-                ip_recurso=srv['ip'],
-                mac_usuario=mac_src,
-                mac_recurso=mac_dst,
-                port_recurso=srv['puerto'],
-                handlername=handler
-            )
     agregar_flows_por_regla_de_rol(username)
+
 
             
 def get_user_db(username):
