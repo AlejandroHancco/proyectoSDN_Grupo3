@@ -548,11 +548,13 @@ def agregar_flows_por_regla_de_rol(username):
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
+        # ✅ Consulta reglas permitidas para este rol
         cursor.execute("""
-            SELECT name, svr_ip, svr_port, svr_mac, sw_id, sw_port
-            FROM rule
-            WHERE action = 'allow'
-        """)
+            SELECT r.name, r.svr_ip, r.svr_port, r.svr_mac, r.sw_id, r.sw_port
+            FROM rule r
+            JOIN role_has_rule rr ON rr.rule_idrule = r.idrule
+            WHERE rr.role_idrole = %s AND r.action = 'allow'
+        """, (rol_id,))
         reglas = cursor.fetchall()
 
         cursor.close()
@@ -577,4 +579,3 @@ def agregar_flows_por_regla_de_rol(username):
 
     except Exception as e:
         print(f"Error aplicando reglas por rol: {e}")
-
