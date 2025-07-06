@@ -76,6 +76,7 @@ def agregar_flows_para_usuario(username):
                 port_recurso=srv['puerto'],
                 handlername=handler
             )
+    agregar_flows_por_regla_de_rol(username)
 
             
 def get_user_db(username):
@@ -526,3 +527,54 @@ def eliminar_flows_de_usuario_para_curso(username, idcurso):
                             print(f"Eliminado flow del curso: {flow_name}")
     except Exception as e:
         print(f"Error eliminando flows del curso {idcurso} para {username}: {e}")
+
+def agregar_flows_por_regla_de_rol(username):
+    user = get_user_db(username)
+    if not user:
+        print(f"Usuario {username} no encontrado.")
+        return
+
+    ip_usuario = user['ip']
+    mac_usuario = user['mac']
+    sw_src = user['sw_id']
+    port_src = user['sw_port']
+    rol_id = user['rol']
+
+    if not sw_src:
+        print(f"No se encontró punto de conexión para {username}")
+        return
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT name, svr_ip, svr_port, svr_mac, sw_id, sw_port
+            FROM rule
+            WHERE action = 'allow'
+        """)
+        reglas = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        for regla in reglas:
+            handlername = f"{username}-{regla['svr_ip']}-{regla['svr_port']}"
+
+            flowUtils.crear_conexion(
+                src_dpid=sw_src,
+                src_port=port_src,
+                dst_dpid=regla['sw_id'],
+                dst_port=regla['sw_port'],
+                ip_usuario=ip_usuario,
+                ip_recurso=regla['svr_ip'],
+                mac_usuario=mac_usuario,
+                mac_recurso=regla['svr_mac'],
+                port_recurso=regla['svr_port'],
+                handlername=handlername
+            )
+            print(f"Regla aplicada: {handlername}")
+
+    except Exception as e:
+        print(f"Error aplicando reglas por rol: {e}")
+
