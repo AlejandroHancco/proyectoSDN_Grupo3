@@ -23,7 +23,6 @@ CREATE TABLE user (
     sw_id VARCHAR(50),
     sw_port INT,
     mac VARCHAR(17),
-    numrules INT,
     FOREIGN KEY (rol) REFERENCES role(idrole)
 );
 
@@ -79,11 +78,11 @@ INSERT INTO role (rolname) VALUES
 ('Invitado');
 
 -- Insertar usuarios con roles
-INSERT INTO user (username, password, names, lastnames, code, rol, session, time_stamp, ip, sw_id, sw_port, mac, numrules) VALUES
-('admin1', 'admin123', 'Admin', 'User', 'ADMIN001', 1, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
-('profesor1', 'profesor1', 'Profesor', 'Apellido1', 'P001', 3, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
-('invitado1', 'invitado1', 'Profesor', 'Apellido1', 'P001', 4, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0),
-('alumno1', 'passalumno', 'Alumno', 'Ejemplo', 'A001', 2, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49', 0);
+INSERT INTO user (username, password, names, lastnames, code, rol, session, time_stamp, ip, sw_id, sw_port, mac) VALUES
+('admin1', 'admin123', 'Admin', 'User', 'ADMIN001', 1, 'active', NOW(), '10.0.0.1', '00:00:f2:20:f9:45:4c:4e', 3, 'fa:16:3e:0a:37:49'),
+('profesor1', 'profesor1', 'Profesor', 'Apellido1', 'P001', 3, 'active', NOW(), '10.0.0.2', '00:00:aa:51:aa:ba:72:41', 5, 'fa:16:3e:69:ff:aa'),
+('invitado1', 'invitado1', 'Profesor', 'Apellido1', 'P001', 4, 'active', NOW(), '10.0.0.1', '00:00:aa:51:aa:ba:72:41', 5, 'fa:16:3e:69:ff:aa'),
+('alumno1', 'passalumno', 'Alumno', 'Ejemplo', 'A001', 2, 'active', NOW(), '10.0.0.2', '00:00:fa:16:3e:69:ff:aa', 3, 'fa:16:3e:0a:37:49');
 
 -- Insertar reglas con identificación del switch y puerto del servidor
 INSERT INTO rule (name, description, svr_ip, svr_port, svr_mac, action, sw_id, sw_port) VALUES
