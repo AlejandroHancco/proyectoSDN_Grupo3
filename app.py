@@ -49,8 +49,15 @@ def login():
 
 @app.route("/logout")
 def logout():
+    usuario = session.get("usuario")
+    if usuario:
+        ip_usuario = usuario.get("ip")
+        mac_usuario = usuario.get("mac")
+        if ip_usuario and mac_usuario:
+            repository.eliminar_flows_usuario(ip_usuario, mac_usuario)
     session.clear()
     return redirect(url_for("login"))
+
 
 # ---------- PANEL ADMIN ----------
 @app.route("/panel_administrador")
