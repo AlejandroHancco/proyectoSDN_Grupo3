@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.secret_key = "grupo3"
 
 # ---------- DECORADORES ----------
-
+#Funciona para que validen los roles a modo de html
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
