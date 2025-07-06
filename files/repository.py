@@ -60,7 +60,7 @@ def agregar_flows_para_usuario(username):
 
             handler = f"{username}-{srv['ip']}-{srv['puerto']}"
 
-            crear_conexion(
+            flowUtils.crear_conexion(
                 src_dpid=sw_src,
                 src_port=port_src,
                 dst_dpid=sw_dst,
