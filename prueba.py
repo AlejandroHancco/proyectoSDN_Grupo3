@@ -1,3 +1,4 @@
+#Este script esta hardcodeado, pero fue utilizado para extraer la idea principal del proyecto. Las funciones en el repository se basan en esto solo que parametrizados.
 import requests
 
 CONTROLLER = "http://localhost:8080"
