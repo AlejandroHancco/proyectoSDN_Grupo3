@@ -61,25 +61,36 @@
             <div class="table-responsive">
                 <table class="table table-bordered table-striped align-middle">
                     <thead class="table-dark text-center">
-                        <tr>
-                            <th>Código del Curso</th>
-                            <th>Nombre</th>
-                            <th>Puerto</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for c in cursos_disponibles %}
-                        <tr>
-                            <td>{{ c.codigo }}</td>
-                            <td>{{ c.nombre }}</td>
-                            <td>{{ c.puerto }}</td>
-                            <td class="text-center">
-                                <a href="/inscribirse/{{ c.idcurso }}" class="btn btn-sm btn-success">Inscribirse</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+    <tr>
+        <th>Código del Curso</th>
+        <th>Nombre</th>
+        <th>Puerto</th>
+        <th>Profesores</th>
+        <th>Acciones</th>
+    </tr>
+</thead>
+<tbody>
+    {% for c in cursos_disponibles %}
+    <tr>
+        <td>{{ c.codigo }}</td>
+        <td>{{ c.nombre }}</td>
+        <td>{{ c.puerto }}</td>
+        <td>
+            {% if c.profesores %}
+                {% for profe in c.profesores %}
+                    {{ profe.names }} {{ profe.lastnames }}<br>
+                {% endfor %}
+            {% else %}
+                <span class="text-muted">Aún no hay profesores registrados</span>
+            {% endif %}
+        </td>
+        <td class="text-center">
+            <a href="/inscribirse/{{ c.idcurso }}" class="btn btn-sm btn-success">Inscribirse</a>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+
                 </table>
             </div>
             {% else %}
