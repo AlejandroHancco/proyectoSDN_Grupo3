@@ -29,6 +29,16 @@ def authenticate_user(username, password):
     reply = client.SendPacket(req)
     return reply.code == AccessAccept
 
+def actualizar_timestamp_login(username):
+    try:
+        connection = get_connection()
+        with connection.cursor() as cursor:
+            sql = "UPDATE user SET time_stamp = NOW() WHERE username = %s"
+            cursor.execute(sql, (username,))
+        connection.commit()
+    finally:
+        connection.close()
+
 def agregar_flows_para_usuario(username):
     user = get_user_db(username)
     if not user:
