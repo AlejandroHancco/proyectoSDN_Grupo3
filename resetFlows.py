@@ -26,16 +26,8 @@ def clear_flows(dpid):
     except Exception as e:
         print(f"❌ Error limpiando flows de {dpid}: {e}")
 
-def add_default_flows(dpid):
-    default_flows = [
-        {
-            "switch": dpid,
-            "name": f"{dpid}-ipv4",
-            "priority": "0",
-            "eth_type": "0x0800",
-            "active": "true",
-            "actions": "output=controller"
-        },
+def add_discovery_flows(dpid):
+    discovery_flows = [
         {
             "switch": dpid,
             "name": f"{dpid}-arp",
@@ -54,7 +46,7 @@ def add_default_flows(dpid):
         }
     ]
 
-    for flow in default_flows:
+    for flow in discovery_flows:
         try:
             response = requests.post(ADD_FLOW_URL, json=flow)
             response.raise_for_status()
@@ -69,10 +61,10 @@ def main():
         return
 
     for sw in switches:
-        dpid = sw.get("switchDPID")  # ✅ Campo correcto en tu caso
+        dpid = sw.get("switchDPID")
         if dpid:
             clear_flows(dpid)
-            add_default_flows(dpid)
+            add_discovery_flows(dpid)
 
 if __name__ == "__main__":
     main()
