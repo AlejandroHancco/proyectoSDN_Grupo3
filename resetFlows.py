@@ -56,8 +56,8 @@ def add_discovery_and_allowed_flows(dpid):
             "switch": dpid,
             "name": f"{dpid}-tcp-to-192.168.101.105-8000",
             "priority": "400",
-            "eth_type": "0x0800",      # IPv4
-            "ip_proto": "6",           # TCP
+            "eth_type": "0x0800",      
+            "ip_proto": "6",          
             "ipv4_dst": DEST_IP,
             "tcp_dst": DEST_TCP_PORT,
             "active": "true",
