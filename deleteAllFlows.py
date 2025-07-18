@@ -1,4 +1,4 @@
-#Borra todos los flows en caso resetFlows falle
+# Borra todos los flows en caso resetFlows falle
 import requests
 
 CONTROLLER_IP = "127.0.0.1"
@@ -46,7 +46,7 @@ def insert_default_flow(switch_dpid):
     try:
         response = requests.post(f"{BASE_URL}/staticflowpusher/json", json=default_flow)
         if response.status_code == 200:
-            print(f"[OK] Default flow inserted in {switch_dpid}")
+            print(f"[OK] Default flow inserted en {switch_dpid}")
         else:
             print(f"[ERR] No se pudo insertar default flow en {switch_dpid}: {response.text}")
     except Exception as e:
@@ -60,10 +60,10 @@ def delete_all_flows():
             for flow_name in flow_entry.keys():
                 delete_flow(flow_name)
 
-    #print("[INFO] Reinserción de reglas default hacia el controller...")
+    # print("[INFO] Reinserción de reglas default hacia el controller...")
 
-    #switches = get_switches()
-       """
+    # switches = get_switches()
+    """
     for sw in switches:
         try:
             dpid = sw["switchDPID"]
@@ -76,4 +76,3 @@ def delete_all_flows():
 
 if __name__ == "__main__":
     delete_all_flows()
-
