@@ -8,7 +8,7 @@ CONTROLLER_PORT = 8080
 
 # IP y puerto del host permitido (servidor login)
 DEST_IP = "00:00:1a:74:72:3f:ef:44"
-DEST_TCP_PORT = "8000"
+DEST_TCP_PORT = "9000"
 OUTPUT_PORT = "3"  
 
 # URLs del controlador
