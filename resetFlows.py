@@ -2,11 +2,16 @@
 #Es decir, solo se permiten reglas para que hagan reconocimiento por mac y por FloodLight, no hay ping entre hosts
 #Nota: Nunca habrá ping entre hosts solo el acceso por el puerto de los cursos que se implementan automaticamente cada vez que se loguea 
 import requests
-import json
-
+# Dirección IP del controlador Floodlight
 CONTROLLER_IP = "127.0.0.1"
 CONTROLLER_PORT = 8080
 
+# IP y puerto del host permitido (servidor login)
+DEST_IP = "00:00:1a:74:72:3f:ef:44"
+DEST_TCP_PORT = "8000"
+OUTPUT_PORT = "3"  
+
+# URLs del controlador
 SWITCHES_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/core/controller/switches/json"
 CLEAR_FLOW_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher/clear"
 ADD_FLOW_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/staticflowpusher/json"
@@ -29,8 +34,8 @@ def clear_flows(dpid):
     except Exception as e:
         print(f"Error limpiando flows de {dpid}: {e}")
 
-def add_discovery_flows(dpid):
-    discovery_flows = [
+def add_discovery_and_allowed_flows(dpid):
+    flows = [
         {
             "switch": dpid,
             "name": f"{dpid}-arp",
@@ -46,10 +51,21 @@ def add_discovery_flows(dpid):
             "eth_type": "0x88cc",
             "active": "true",
             "actions": "output=controller"
+        },
+        {
+            "switch": dpid,
+            "name": f"{dpid}-tcp-to-192.168.101.105-8000",
+            "priority": "400",
+            "eth_type": "0x0800",      # IPv4
+            "ip_proto": "6",           # TCP
+            "ipv4_dst": DEST_IP,
+            "tcp_dst": DEST_TCP_PORT,
+            "active": "true",
+            "actions": f"output={OUTPUT_PORT}"
         }
     ]
 
-    for flow in discovery_flows:
+    for flow in flows:
         try:
             response = requests.post(ADD_FLOW_URL, json=flow)
             response.raise_for_status()
@@ -67,7 +83,8 @@ def main():
         dpid = sw.get("switchDPID")
         if dpid:
             clear_flows(dpid)
-            add_discovery_flows(dpid)
+            add_discovery_and_allowed_flows(dpid)
 
 if __name__ == "__main__":
     main()
+
