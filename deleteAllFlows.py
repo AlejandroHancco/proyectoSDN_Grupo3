@@ -60,9 +60,10 @@ def delete_all_flows():
             for flow_name in flow_entry.keys():
                 delete_flow(flow_name)
 
-    print("[INFO] Reinserción de reglas default hacia el controller...")
+    #print("[INFO] Reinserción de reglas default hacia el controller...")
 
-    switches = get_switches()
+    #switches = get_switches()
+       """
     for sw in switches:
         try:
             dpid = sw["switchDPID"]
@@ -71,6 +72,7 @@ def delete_all_flows():
             print(f"[ERR] No se encontró 'switchDPID' en {sw}")
         except Exception as e:
             print(f"[ERR] Error inesperado con switch: {e}")
+    """
 
 if __name__ == "__main__":
     delete_all_flows()
