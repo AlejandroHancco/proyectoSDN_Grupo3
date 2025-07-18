@@ -6,10 +6,6 @@ import requests
 CONTROLLER_IP = "127.0.0.1"
 CONTROLLER_PORT = 8080
 
-# IP y puerto del host permitido (servidor login)
-DEST_IP = "00:00:1a:74:72:3f:ef:44"
-DEST_TCP_PORT = "9000"
-OUTPUT_PORT = "3"  
 
 # URLs del controlador
 SWITCHES_URL = f"http://{CONTROLLER_IP}:{CONTROLLER_PORT}/wm/core/controller/switches/json"
@@ -52,17 +48,7 @@ def add_discovery_and_allowed_flows(dpid):
             "active": "true",
             "actions": "output=controller"
         },
-        {
-            "switch": dpid,
-            "name": f"{dpid}-tcp-to-192.168.101.105-8000",
-            "priority": "400",
-            "eth_type": "0x0800",      
-            "ip_proto": "6",          
-            "ipv4_dst": DEST_IP,
-            "tcp_dst": DEST_TCP_PORT,
-            "active": "true",
-            "actions": f"output={OUTPUT_PORT}"
-        }
+        
     ]
 
     for flow in flows:
