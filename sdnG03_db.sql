@@ -90,8 +90,8 @@ INSERT INTO rule (name, description, svr_ip, svr_port, svr_mac, action, sw_id, s
 ('Regla Admin - Curso 2', 'Acceso completo para admin al curso Redes', '10.0.0.3', 9002, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
 ('Regla Admin - Curso 3', 'Acceso completo para admin al curso Seguridad', '10.0.0.3', 9003, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
 ('Regla Admin - Curso 4', 'Acceso completo para admin al curso SDN', '10.0.0.3', 9004, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
-('Regla Profesores - Curso 5', 'Acceso administrativo para profesores', '10.0.0.3', 9000, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
-('Acceso Internet', 'Permitir solo acceso a Internet', '10.0.0.3', 9005, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3);
+('Regla Profesores - Curso 5', 'Acceso administrativo para profesores', '10.0.0.3', 9005, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3),
+('Acceso Internet', 'Permitir solo acceso a Internet', '10.0.0.3', 9000, 'fa:16:3e:a7:e1:fb', 'allow', '00:00:1a:74:72:3f:ef:44', 3);
 
 
 -- Asociar reglas con roles
@@ -101,6 +101,7 @@ INSERT INTO role_has_rule (role_idrole, rule_idrule) VALUES
 (1, 3),
 (1, 4),
 (1, 5),
+(2, 5),
 (1, 6),
 (2, 6),
 (3, 6),
