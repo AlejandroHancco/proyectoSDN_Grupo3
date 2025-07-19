@@ -101,7 +101,7 @@ INSERT INTO role_has_rule (role_idrole, rule_idrule) VALUES
 (1, 3),
 (1, 4),
 (1, 5),
-(2, 5),
+(3, 5),
 (1, 6),
 (2, 6),
 (3, 6),
