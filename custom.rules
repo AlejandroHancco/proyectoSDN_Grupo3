@@ -1,0 +1,17 @@
+# 1. Posible ataque ICMP flood
+alert icmp any any -> any any (msg:"Posible ataque ICMP flood"; sid:100002; threshold: type both, track by_src, count 20, seconds 10; rev:1;)
+
+# 2. Escaneo SYN detectado (posible reconocimiento)
+alert tcp any any -> any any (flags:S; msg:"Escaneo SYN detectado"; threshold: type both, track by_src, count 20, seconds 10; sid:100010; rev:1;)
+
+# 3. Posible ataque fuerza bruta SSH
+alert tcp any any -> any 22 (msg:"Posible ataque fuerza bruta SSH"; threshold: type both, track by_src, count 5, seconds 60; sid:100020; rev:1;)
+
+# 4. Posible intento de ejecución remota (RCE)
+alert http any any -> any any (msg:"Posible intento de ejecución remota (RCE)"; content:"cmd="; nocase; sid:100030; rev:1;)
+
+# 5. Posible UDP flood
+alert udp any any -> any any (msg:"Posible UDP flood"; threshold: type both, track by_src, count 200, seconds 10; sid:100040; rev:1;)
+
+# 6. Ping of Death
+alert icmp any any -> any any (msg:"Ping de tamaño anómalo detectado"; dsize:>1400; threshold: type both, track by_src, count 5, seconds 10; sid:100050; rev:2;)
