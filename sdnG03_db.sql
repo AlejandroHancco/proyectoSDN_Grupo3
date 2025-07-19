@@ -107,6 +107,8 @@ INSERT INTO role_has_rule (role_idrole, rule_idrule) VALUES
 (3, 6),
 (4, 6);
 
+INSERT INTO inscripcion (user_iduser, curso_idcurso, rol_id) VALUES (2, 1, 3);
+
 -- Insertar cursos con PUERTO y sin inscripciones
 INSERT INTO curso (codigo, nombre, estado, puerto) VALUES
 ('TEL120', 'Circuitos y Sistemas en Alta Frecuencia', 'activo', 9001),
