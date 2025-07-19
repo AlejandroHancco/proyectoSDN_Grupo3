@@ -9,7 +9,15 @@
             </span>
         </div>
 
-        <!-- Botón cerrar sesión -->
-        <a href="{{ url_for('logout') }}" class="btn btn-outline-light">Cerrar Sesión</a>
+        <!-- Botones a la derecha -->
+        <div class="d-flex align-items-center">
+            <!-- Enlace a 10.0.0.3:9000 -->
+            <a href="http://10.0.0.3:9000" class="btn btn-outline-light me-2" target="_blank" title="Ir al Campus">
+                Campus
+            </a>
+
+            <!-- Botón cerrar sesión -->
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-light">Cerrar Sesión</a>
+        </div>
     </div>
 </nav>
