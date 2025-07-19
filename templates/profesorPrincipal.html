@@ -16,13 +16,13 @@
             {% for item in cursos_info %}
             <div class="accordion-item mb-3">
                 <h2 class="accordion-header" id="heading{{ loop.index }}">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapse{{ loop.index }}" aria-expanded="false"
+                    <button class="accordion-button" type="button"
+                            aria-expanded="true"
                             aria-controls="collapse{{ loop.index }}">
                         {{ item.curso.nombre }} (Código: {{ item.curso.codigo }})
                     </button>
                 </h2>
-                <div id="collapse{{ loop.index }}" class="accordion-collapse collapse"
+                <div id="collapse{{ loop.index }}" class="accordion-collapse collapse show"
                      aria-labelledby="heading{{ loop.index }}" data-bs-parent="#accordionCursos">
                     <div class="accordion-body">
                         {% if item.inscritos %}
